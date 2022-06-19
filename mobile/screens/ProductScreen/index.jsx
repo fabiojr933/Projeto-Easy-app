@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   HStack,
@@ -131,11 +131,14 @@ export default function (props) {
   let [service, setService] = React.useState("");
   const [tabName, setTabName] = React.useState("Reviews");
   const { colorMode } = useColorMode();
+  const[autenticacao, setAutenticacao] = useState();
 
   useEffect(() => {
     async function loadData(){
-      await SyncStorage.getItem('@user').then((value) => {
-       console.log(value);     
+      await SyncStorage.getItem('@user').then((value) => { 
+      
+        setAutenticacao(JSON.parse(value).autorizacao);
+        
       });
     }
     loadData();

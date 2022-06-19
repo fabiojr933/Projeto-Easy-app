@@ -21,7 +21,7 @@ class contaModel {
                             from conta a
                             where id_usuario = ${conta.id_usuario}    
                             and status = 'Ativo'                   
-                            and a.conta = '${conta.conta}'`).then((resposta) => {                           
+                            and a.conta = '${conta.conta}'`).then((resposta) => {
             ExisteConta = Number(resposta.rows[0].id);
         })
         if (ExisteConta > 0) {

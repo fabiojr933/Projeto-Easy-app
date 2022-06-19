@@ -49,7 +49,13 @@ export function SignInForm({ props }) {
     try {
       var api = await axios(config);
       if(api.status == 200){
-        await SyncStorage.setItem('@user', JSON.stringify({ 'autorizacao': api.data.autorizacao, 'email': api.data.email, 'id_cliente': api.data.id }));
+        const token = {          
+            'autorizacao': api.data.autorizacao, 
+            'email': api.data.email, 
+            'id_cliente': api.data.id ,          
+        } 
+        const jsonValue = JSON.stringify(token)
+        await SyncStorage.setItem('@user', jsonValue);
         navigation.navigate('ProductScreen');
       }      
     } catch (error) {  

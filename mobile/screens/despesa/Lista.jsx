@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   HStack,
@@ -15,18 +15,52 @@ import {
 } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import  { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import SyncStorage from '@react-native-async-storage/async-storage';
+import configuracao from '../../services/api';
+import axios from 'axios';
 
-export function DespesaForm({ props }) { 
 
-  const [conta, setConta] = useState(""); 
+export function DespesaForm({ props }) {
+
+  const [conta, setConta] = useState("");
   const [banco, setBanco] = useState("");
-  const [nomeBanco, setNomeBanco] = useState('');  
+  const [nomeBanco, setNomeBanco] = useState('');
   const navigation = useNavigation();
+  const [autenticacao, setAutenticacao] = useState('');
+  const [despesa, setDespesa] = useState([]);
+
+  useEffect(() => {
+    var listaDespesa = {};
+    async function loadData() {
+      await SyncStorage.getItem('@user').then((value) => {       
+        setAutenticacao(JSON.parse(value).autorizacao);       
+      });
+      var config = {
+        method: 'get',
+        url: configuracao.url_base_api + '/despesa/listaAll',
+        headers: {
+          'Authorization': 'Bearer ' + configuracao.token,
+          'autorizacao': autenticacao
+        }
+      }   
+      axios(config).then((resposta) => {        
+      resposta.data.map((c, i) => { 
+        
+        listaDespesa = {
+          id: c.id,
+          despesa: c.despesa
+        }        
+      })
+      console.log(listaDespesa)
+      })
+    }
+    loadData();
+  }, []);
 
 
-  function teste(){
+  function teste() {
     console.log(conta, banco, nomeBanco);
   }
 
@@ -67,7 +101,7 @@ export function DespesaForm({ props }) {
         <VStack space="7">
           <Hidden till="md">
             <Text fontSize="lg" fontWeight="normal">
-            Despesas cadastrados
+              Despesas cadastrados
             </Text>
           </Hidden>
           <VStack>
@@ -81,43 +115,36 @@ export function DespesaForm({ props }) {
 
 
 
-      <Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Despesa') }}>Novo</Button>
+                <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Despesa') }}>Novo</Button>
 
-      <Text textAlign={"center"}
+                <Text textAlign={"center"}
                   fontSize="md"
-                  fontWeight="normal"                 
+                  fontWeight="normal"
                   _light={{
                     color: "muted.900",
                   }}
                 >
-                 Selecione abaixo para poder excluir
-                </Text>         
+                  Selecione abaixo para poder excluir
+                </Text>
 
-      <DataTable
-        onRowSelect={(row) => { console.log(row)}}
-            data={[ 
-                {id: 1, Despesa: 'Mercado', Excluir: false},
-                {id: 2, Despesa: 'Muhammad Akif', Excluir: false },
-                {id: 3, Despesa: 'Muhammad Umar', Excluir: false },
-                {id: 4, Despesa: 'Amna Shakeel', Excluir: false},
-                {id: 5, Despesa: 'Muhammad Ammar', Excluir: false },
-                {id: 6, Despesa: 'Muhammad Moiz', Excluir: false }
-            ]} // list of objects
-            colNames={['Despesa', 'Excluir']} //List of Strings
-            colSettings={[
-              { name: 'Despesa', type: COL_TYPES.STRING, width: '70%' }, 
-              { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
-            ]}//List of Objects
-            noOfPages={2} //number
-            backgroundColor={'#aaa8a833'} //Table Background Color
-            headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
-        />
+                <DataTable
+                  onRowSelect={(row) => { console.log(row) }}
+                  data= {despesa} // list of objects
+                  colNames={['Despesa', 'Excluir']} //List of Strings
+                  colSettings={[
+                    { name: 'Despesa', type: COL_TYPES.STRING, width: '70%' },
+                    { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
+                  ]}//List of Objects
+                  noOfPages={2} //number
+                  backgroundColor={'#aaa8a833'} //Table Background Color
+                  headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
+                />
 
-<Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Despesa') }}>Excluir</Button>
-               
-               
-              </VStack>               
-            </VStack>           
+                <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Despesa') }}>Excluir</Button>
+
+
+              </VStack>
+            </VStack>
           </VStack>
         </VStack>
       </VStack>
@@ -171,8 +198,8 @@ export default function Despesa(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}                    
-                  icon={ 
+                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  icon={
                     <Icon
                       size="6"
                       as={AntDesign}
@@ -182,12 +209,12 @@ export default function Despesa(props) {
                   }
                 />
                 <Text color="coolGray.50" fontSize="lg">
-                Voltar
+                  Voltar
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>                  
-                Despesas cadastrados
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>
+                  Despesas cadastrados
                 </Text >
                 <Text textAlign={"center"}
                   fontSize="md"
