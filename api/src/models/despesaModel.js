@@ -16,15 +16,13 @@ class despesaModel {
         if (!despesa.despesa) throw new Validacao('O nome da despesa é obrigatorio');
         if (!despesa.id_usuario) throw new Validacao('Usuario não Autorizado');
 
-
-        //Obs falta corrigir um bug aqui ==>
-        await knex.raw(`select count(id) as id from despesa
-                                         where id_usuario = ${despesa.id_usuario}
-                                         and status = 'Ativo'
-                                         and despesa = LOWER('${despesa.despesa}') 
-                                         and despesa = UPPER('${despesa.despesa}')
-                                         and despesa = INITCAP('${despesa.despesa}')`).then((resposta) => {
-            ExisteDespesa = Number(resposta.rows[0].id);
+        await knex.raw(`select 
+                            count(id)as id
+                            from despesa a
+                            where id_usuario = ${despesa.id_usuario}  
+                            and status = 'Ativo'
+                            and LOWER(a.despesa) = LOWER('${despesa.despesa}') `).then((resposta) => {
+            ExisteDespesa = Number(resposta.rows[0].id);   
         })
         if (ExisteDespesa > 0) {
             throw new Validacao('Essa Despesa ja esta cadastrado');
