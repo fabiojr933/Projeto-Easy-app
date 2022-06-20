@@ -6,3 +6,7 @@ criando a tabela
 
 deletando a tabela
 .\node_modules\.bin\knex migrate:rollback --env test
+
+
+knex globalmente
+npm i -g knex

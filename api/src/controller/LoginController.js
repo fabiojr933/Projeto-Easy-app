@@ -5,8 +5,9 @@ class LoginController {
             let usuario = req.body;
             let login = new Login();
             const autenticacao = await login.Autenticar(usuario);
+            res.status(200).json(autenticacao);
         } catch (error) {
-            res.status(400).json({ error: error.smg });
+            res.status(400).json({ error: error.error });
         }
     }
     async logoff(req, res) {
