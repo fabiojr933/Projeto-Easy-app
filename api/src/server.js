@@ -12,4 +12,4 @@ app.use(express.json());
 app.use('/api/v1', route);
 route.use('/upload', express.static(path.resolve(__dirname, '...', 'public/upload')));
 app.get('/api/v1/', (req, res) => { res.status(200).send('Home'); });
-app.listen(port, () => { console.log(`Servidor ativo na porta ${port}`); });
+app.listen(port, () => { console.log(`Servidor ativo 🐱‍🏍 ✔ 🤓 na porta ${port}`); });

@@ -51,7 +51,7 @@ class UsuarioModel {
                         { despesa: 'Assinaturas', status: 'Ativo', id_usuario: ultimoId[0].id },
                     ]).then((despesa) => {
                         knex('conta').insert([
-                            { conta: 'Carteira', status: 'Ativo', id_usuario: ultimoId[0].id },
+                            {nome: 'Carteira', conta: 898999, banco: 748, status: 'Ativo', id_usuario: ultimoId[0].id },
                         ]).then((despesa) => {
                         });
                     });
