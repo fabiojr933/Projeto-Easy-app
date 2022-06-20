@@ -52,7 +52,8 @@ export function DespesaForm({ props }) {
     console.log(config)
     axios(config).then((resposta) => {
       if (resposta.status == 201 ) {
-        navigation.navigate('ListaDespesa', { mensagem: 'Cadastro realizado com sucesso' });
+      //  navigation.goBack();
+        navigation.navigate('ListaDespesa');
       }
       if(resposta.status == 400){
         setValidacao(error.response.data.error)

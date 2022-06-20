@@ -2,7 +2,10 @@ const Login = require('../models/LoginModel');
 class LoginController {
     async autenticar(req, res) {
         try {
-            let usuario = req.body;
+            let usuario = {
+                'email': req.body.email.toUpperCase().trim(),
+                'senha': req.body.senha.trim(),
+            }
             let login = new Login();
             const autenticacao = await login.Autenticar(usuario);
             res.status(200).json(autenticacao);

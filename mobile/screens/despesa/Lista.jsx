@@ -12,6 +12,9 @@ import {
   StatusBar,
   Stack,
   Box,
+  Spinner,
+  Heading  
+
 } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -20,18 +23,25 @@ import DataTable, { COL_TYPES } from "react-native-datatable-component";
 import SyncStorage from "@react-native-async-storage/async-storage";
 import configuracao from "../../services/api";
 import axios from "axios";
+import { Alert  } from 'react-native'
 
 export function DespesaForm({ props }) {
   const [conta, setConta] = useState("");
   const [banco, setBanco] = useState("");
-  const [nomeBanco, setNomeBanco] = useState("");
+  const [mensagem, setMensagem] = useState();
   const navigation = useNavigation();
   const [autenticacao, setAutenticacao] = useState("");
   const [despesa, setDespesa] = useState([]);
   const [validacao, setValidacao] = useState('');
+  const [tempo, setTempo] = useState(true);
+  const [despesaSelecionada, setDespesaSelecionada] = useState([]);
+  const [load,setLoad] = useState(true)
 
-  useEffect(() => {
+
+
+  function Carregamento(){
     var config = {};
+    navigation.addListener('focus', ()=>setLoad(!load))
     async function loadData() {
       await SyncStorage.getItem("@user").then((value) => {
         setAutenticacao(JSON.parse(value).autorizacao);
@@ -44,116 +54,164 @@ export function DespesaForm({ props }) {
           },
         };
       });
+      console.log(config)
       axios(config)
         .then((resposta) => {
           setDespesa(resposta.data);
         })
+      setTimeout(() => {
+        setTempo(false)
+      }, 3000)
         .catch((error) => {
           console.log(error.response);
         });
     }
     loadData();
-  }, []);
+  }
 
-  return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={{
-        flex: 1,
-      }}
-    >
-      <VStack
-        flex="1"
-        px="6"
-        py="9"
-        _light={{
-          bg: "white",
+  useEffect(() => {
+    Carregamento();
+  }, [load, navigation]);
+
+
+  async function deletarDespesa() {
+    if (despesaSelecionada == [] || despesaSelecionada.length == 0 || despesaSelecionada == undefined) {
+      Alert.alert('Atenção', 'Para excluir precisa selecionar alguma despesa');
+      return;
+    } else {
+      await SyncStorage.getItem("@user").then((value) => {
+        despesaSelecionada.map((v, k) => {
+          var config = {
+            method: 'PUT',
+            url: configuracao.url_base_api + '/despesa/desativar/' + v.id,
+            headers: {
+              Authorization: "Bearer " + configuracao.token,
+              autorizacao: JSON.parse(value).autorizacao,
+            },
+          }
+          axios(config).then((response) => {
+          });
+        })
+      })
+      setMensagem('Despesa excluir com sucesso')
+      Carregamento();
+    }
+  }
+
+  if (tempo == true) {
+    return (
+      <HStack space={2} justifyContent="center" marginTop='200'>
+        <Spinner size="lg" color="#ffffff" />
+        <Heading color="#ffffff" fontSize="2xl">
+          Carregando
+        </Heading>
+        <Heading color="#ffffff" fontSize="2xl">
+          Aguarde....
+        </Heading>
+      </HStack>
+    )
+  } else {
+
+
+    return (
+      <KeyboardAwareScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
         }}
-        _dark={{
-          bg: "coolGray.800",
-        }}
-        space="3"
-        justifyContent="space-between"
-        borderTopRightRadius={{
-          base: "2xl",
-          md: "xl",
-        }}
-        borderBottomRightRadius={{
-          base: "0",
-          md: "xl",
-        }}
-        borderTopLeftRadius={{
-          base: "2xl",
-          md: "0",
+        style={{
+          flex: 1,
         }}
       >
-        <VStack space="7">
-          <Hidden till="md">
-            <Text fontSize="lg" fontWeight="normal">
-              Despesas cadastrados
-            </Text>
-          </Hidden>
-          <VStack>
-            <VStack space="3">
-              <VStack
-                space={{
-                  base: "7",
-                  md: "4",
-                }}
-              >
-                 <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"} marginTop={-10} >
-                    {props.route.params?.mensagem}           
-                  </Text> 
-                <Button
-                  backgroundColor={"rgb(77, 29 ,149)"}
-                  onPress={() => {
-                    props.navigation.navigate("Despesa");
+        <VStack
+          flex="1"
+          px="6"
+          py="9"
+          _light={{
+            bg: "white",
+          }}
+          _dark={{
+            bg: "coolGray.800",
+          }}
+          space="3"
+          justifyContent="space-between"
+          borderTopRightRadius={{
+            base: "2xl",
+            md: "xl",
+          }}
+          borderBottomRightRadius={{
+            base: "0",
+            md: "xl",
+          }}
+          borderTopLeftRadius={{
+            base: "2xl",
+            md: "0",
+          }}
+        >
+
+          <VStack space="7">
+            <Hidden till="md">
+              <Text fontSize="lg" fontWeight="normal">
+                Despesas cadastrados
+              </Text>
+            </Hidden>
+            <VStack>
+              <VStack space="3">
+                <VStack
+                  space={{
+                    base: "7",
+                    md: "4",
                   }}
                 >
-                  Novo
-                </Button>
+                  <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"} marginTop={-10} >
+                    {mensagem}
+                  </Text>   
+                  <Button
+                    backgroundColor={"rgb(77, 29 ,149)"}
+                    onPress={() => {
+                      props.navigation.navigate("Despesa");
+                    }}
+                  >
+                    Novo
+                  </Button>
 
-                <Text
-                  textAlign={"center"}
-                  fontSize="md"
-                  fontWeight="normal"
-                  _light={{
-                    color: "muted.900",
-                  }}
-                >
-                  Selecione abaixo para poder excluir
-                </Text>
+                  <Text
+                    textAlign={"center"}
+                    fontSize="md"
+                    fontWeight="normal"
+                    _light={{
+                      color: "muted.900",
+                    }}
+                  >
+                    Selecione abaixo para poder excluir
+                  </Text>
 
-                <DataTable
-                   onRowSelect={(row) => { console.log(row) }}
-                  data={despesa} // list of objects
-                  colNames={["despesa", "Excluir"]} //List of Strings
-                  colSettings={[
-                    { name: "despesa", type: COL_TYPES.STRING, width: "70%" },
-                    { name: "Excluir", type: COL_TYPES.CHECK_BOX },
-                  ]} //List of Objects
-                  noOfPages={2} //number
-                  backgroundColor={"#aaa8a833"} //Table Background Color
-                  headerLabelStyle={{ color: "rgb(77, 29 ,149)", fontSize: 12 }} //Text Style Works
-                />
+                  <DataTable
+                    onRowSelect={(row) => { setDespesaSelecionada([...despesaSelecionada, row]) }}
+                    data={despesa} // list of objects
+                    colNames={["despesa", "Excluir"]} //List of Strings
+                    colSettings={[
+                      { name: "despesa", type: COL_TYPES.STRING, width: "70%" },
+                      { name: "Excluir", type: COL_TYPES.CHECK_BOX },
+                    ]} //List of Objects
+                    noOfPages={1}   //number
+                    backgroundColor={"#aaa8a833"} //Table Background Color
+                    headerLabelStyle={{ color: "rgb(77, 29 ,149)", fontSize: 12 }} //Text Style Works
+                  />
 
-                <Button
-                  backgroundColor={"rgb(77, 29 ,149)"}
-                  onPress={() => {
-                    props.navigation.navigate("Despesa");
-                  }}
-                >
-                  Excluir
-                </Button>
+                  <Button
+                    backgroundColor={"rgb(77, 29 ,149)"}
+                    onPress={deletarDespesa}
+                  >
+                    Excluir
+                  </Button>
+                </VStack>
               </VStack>
             </VStack>
           </VStack>
         </VStack>
-      </VStack>
-    </KeyboardAwareScrollView>
-  );
+      </KeyboardAwareScrollView>
+    )
+  };
 }
 export default function Despesa(props) {
   return (

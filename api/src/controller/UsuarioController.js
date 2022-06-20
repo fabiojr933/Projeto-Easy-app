@@ -2,7 +2,11 @@ const Usuario = require('../models/UsuarioModel');
 class UsuarioController {
     async salvar(req, res) {
         try {
-            let usuario = req.body;
+            let usuario = {
+                'email': req.body.email.toUpperCase().trim(),
+                'senha': req.body.senha.trim(), 
+                'nome': req.body.nome.toUpperCase().trim(),
+            }
             let user = new Usuario();
             await user.salvar(usuario);
             return res.status(201).json({
