@@ -23,13 +23,47 @@ import IconGoogle from "./components/IconGoogle";
 import IconFacebook from "./components/IconFacebook";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import axios from 'axios';
+import configuracao from '../../services/api';
+import { useNavigation } from '@react-navigation/native';
 
 function SignUpForm({ props }) {
   // const router = useRouter(); //use incase of Nextjs
-  const [text, setText] = useState("");
-  const [pass, setPass] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [showPass, setShowPass] = React.useState(false);
+  const [validacao, setValidacao] = useState('ggggg');
+  const navigation = useNavigation(); 
+
+  async function salvarUsuario(){
+    console.log('1')
+    const data = {'email': email, 'senha': senha, 'nome': nome};
+    var config = {
+      method: 'post',
+      url: configuracao.url_base_api +'/usuario/salvar',
+      headers: {
+        'Authorization': 'Bearer ' + configuracao.token, 
+      },
+      data: data
+    }
+    console.log('2')
+    
+    try {
+      console.log('3')
+      var api = await axios(config);
+      if(api.status == 400){
+         return console.log(api + '400000000')
+      }
+      console.log(api);
+      console.log('4')
+    } catch (error) {
+      console.log('5')
+      console.log(error)
+    }
+   
+  }
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -66,26 +100,29 @@ function SignUpForm({ props }) {
       >
         <VStack space="7">
           <Hidden till="md">
-            <Text fontSize="lg" fontWeight="normal">              
-            Inscreva-se para continuar!
+            <Text fontSize="lg" fontWeight="normal">             
+          
             </Text>
           </Hidden>
           <VStack>
-            <VStack space="8">
+            <VStack space="8" >
               <VStack
                 space={{
                   base: "7",
                   md: "4",
                 }}
-              >
+              >       
+              <Text fontSize="sm" color="coolGray.400" pl="2" textAlign={"center"}>
+              {validacao}
+                  </Text>         
                 <FloatingLabelInput
-                  isRequired
+                  isRequired={true}
                   label="Email"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
-                  defaultValue={text}
-                  onChangeText={(txt) => setText(txt)}
+                  defaultValue={email}
+                  onChangeText={(email) => setEmail(email)}
                   _text={{
                     fontSize: "sm",
                     fontWeight: "medium",
@@ -100,12 +137,12 @@ function SignUpForm({ props }) {
                 <FloatingLabelInput
                   isRequired
                   type={showPass ? "" : "password"}
-                  label="Password"
+                  label="Senha"
                   borderRadius="4"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
-                  defaultValue={pass}
-                  onChangeText={(txt) => setPass(txt)}
+                  defaultValue={senha}
+                  onChangeText={(senha) => setSenha(senha)}
                   InputRightElement={
                     <IconButton
                       variant="unstyled"
@@ -219,9 +256,7 @@ function SignUpForm({ props }) {
                 _dark={{
                   bg: "primary.700",
                 }}
-                onPress={() => {
-                  props.navigation.navigate("SignIn");
-                }}
+                onPress={salvarUsuario}
               >
                 
             INSCREVER-SE

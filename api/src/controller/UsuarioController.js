@@ -5,11 +5,11 @@ class UsuarioController {
             let usuario = req.body;
             let user = new Usuario();
             await user.salvar(usuario);
-            res.status(200).json({
+            return res.status(201).json({
                 ...usuario
             });
         } catch (error) {
-            res.status(400).json({ error: error.error });
+            return res.status(400).json({ error: error.error });
         }
     }
     async alterar(req, res) {
@@ -18,7 +18,7 @@ class UsuarioController {
             let id = req.params.id;
             let user = new Usuario();
             await user.alterar(usuario, id);
-            res.status(200).json({
+            return res.status(200).json({
                 sucesso: 'Dados dos usuario alterado com sucesso'
             });
         } catch (error) {
