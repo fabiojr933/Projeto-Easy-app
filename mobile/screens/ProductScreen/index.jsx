@@ -36,6 +36,7 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import SyncStorage from '@react-native-async-storage/async-storage';
 
 const reviews = [
   {
@@ -131,7 +132,14 @@ export default function (props) {
   const [tabName, setTabName] = React.useState("Reviews");
   const { colorMode } = useColorMode();
 
-
+  useEffect(() => {
+    async function loadData(){
+      await SyncStorage.getItem('@user').then((value) => {
+       console.log(value);     
+      });
+    }
+    loadData();
+ }, []);
 
   return (
     <>

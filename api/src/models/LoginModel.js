@@ -4,11 +4,11 @@ const bcrypt = require('bcryptjs');
 
 class LoginModel {
     async Autenticar(usuario) {
-        var dados = {};
+        var dados = {};       
         if (!usuario.email) throw new Validacao('Email é obrigatorio');
         if (!usuario.senha) throw new Validacao('A senha é obrigatorio');
-        await knex('usuario').where({ email: usuario.email }).first().then((resposta) => {
-            if (resposta === undefined) {
+        await knex('usuario').where({ email: usuario.email }).first().then((resposta) => {           
+            if (resposta.email === undefined) {
                 throw new Validacao('Email não encontrado');
             }
             if (bcrypt.compareSync(usuario.senha, resposta.senha)) {

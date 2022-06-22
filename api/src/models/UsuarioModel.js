@@ -8,8 +8,8 @@ env.config();
 
 class UsuarioModel {
     async salvar(usuario) {
+        if (!usuario.email) throw new Validacao("Email é obrigatorio");        
         if (!usuario.senha) throw new Validacao("Senha é obrigatorio");
-        if (!usuario.email) throw new Validacao("Email é obrigatorio");
         if (!usuario.nome) throw new Validacao("Nome do usuario é obrigatorio");
         var token = jwt.encode(usuario.email, process.env.SEGREDO)
         var salto = bcrypt.genSaltSync(10);

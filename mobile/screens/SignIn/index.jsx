@@ -23,13 +23,40 @@ import IconGoogle from "./components/IconGoogle";
 import IconFacebook from "./components/IconFacebook";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import axios from 'axios';
+import configuracao from '../../services/api';
+import { useNavigation } from '@react-navigation/native';
+import SyncStorage from '@react-native-async-storage/async-storage';
+
 export function SignInForm({ props }) {
   // const router = useRouter(); //use incase of Nextjs
-  const [text, setText] = useState("");
-  const [pass, setPass] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [showPass, setShowPass] = React.useState(false);
-  const [tempo, setTempo] = React.useState(true);
+  const [validacao, setValidacao] = useState('');
+  const navigation = useNavigation(); 
   
+  async function login(){
+    const data = {'email': email, 'senha': senha };
+    const config = {
+      method: 'post',
+      url: configuracao.url_base_api + '/login/autenticar',
+      headers: {
+        'Authorization': 'Bearer ' + configuracao.token, 
+      },
+      data, data
+    }
+    try {
+      var api = await axios(config);
+      if(api.status == 200){
+        await SyncStorage.setItem('@user', JSON.stringify({ 'autorizacao': api.data.autorizacao, 'email': api.data.email, 'id_cliente': api.data.id }));
+        navigation.navigate('ProductScreen');
+      }      
+    } catch (error) {  
+      console.log(error.response)  
+      setValidacao(error.response.data.error)
+    }
+  }
  
   return (
     <KeyboardAwareScrollView
@@ -79,14 +106,18 @@ export function SignInForm({ props }) {
                   md: "4",
                 }}
               >
+                 <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"}  >
+                    {props.route.params?.mensagem}
+                    {validacao}
+                  </Text> 
                 <FloatingLabelInput
                   isRequired
                   label="Email"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
-                  defaultValue={text}
-                  onChangeText={(txt) => setText(txt)}
+                  defaultValue={email}
+                  onChangeText={(email) => setEmail(email)}
                   _text={{
                     fontSize: "sm",
                     fontWeight: "medium",
@@ -105,8 +136,8 @@ export function SignInForm({ props }) {
                   borderRadius="4"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
-                  defaultValue={pass}
-                  onChangeText={(txt) => setPass(txt)}
+                  defaultValue={senha}
+                  onChangeText={(senha) => setSenha(senha)}
                   InputRightElement={
                     <IconButton
                       variant="unstyled"
@@ -189,9 +220,7 @@ export function SignInForm({ props }) {
                 _dark={{
                   bg: "primary.700",
                 }}
-                onPress={() => {
-                  props.navigation.navigate("ProductScreen");
-                }}
+                onPress={login}
               >
                 ENTRAR
               </Button>

@@ -33,11 +33,10 @@ function SignUpForm({ props }) {
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [showPass, setShowPass] = React.useState(false);
-  const [validacao, setValidacao] = useState('ggggg');
+  const [validacao, setValidacao] = useState('');
   const navigation = useNavigation(); 
 
   async function salvarUsuario(){
-    console.log('1')
     const data = {'email': email, 'senha': senha, 'nome': nome};
     var config = {
       method: 'post',
@@ -46,20 +45,17 @@ function SignUpForm({ props }) {
         'Authorization': 'Bearer ' + configuracao.token, 
       },
       data: data
-    }
-    console.log('2')
-    
+    }    
     try {
-      console.log('3')
       var api = await axios(config);
-      if(api.status == 400){
-         return console.log(api + '400000000')
+      if(api.status == 201){
+        navigation.navigate('SignIn', {mensagem: 'Cadastro realizado com sucesso'});
       }
-      console.log(api);
-      console.log('4')
-    } catch (error) {
-      console.log('5')
-      console.log(error)
+      if(api.status == 400){
+        setValidacao(error.response.data.error)
+      }
+    } catch (error) {     
+      setValidacao(error.response.data.error)
     }
    
   }
@@ -112,7 +108,7 @@ function SignUpForm({ props }) {
                   md: "4",
                 }}
               >       
-              <Text fontSize="sm" color="coolGray.400" pl="2" textAlign={"center"}>
+              <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
               {validacao}
                   </Text>         
                 <FloatingLabelInput
