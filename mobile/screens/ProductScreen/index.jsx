@@ -135,10 +135,9 @@ export default function (props) {
 
   useEffect(() => {
     async function loadData(){
-      await SyncStorage.getItem('@user').then((value) => { 
-      
+      await SyncStorage.getItem('@user').then((value) => {
         setAutenticacao(JSON.parse(value).autorizacao);
-        
+        console.log(JSON.parse(value).autorizacao)
       });
     }
     loadData();

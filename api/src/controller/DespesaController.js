@@ -21,7 +21,7 @@ class DespesaController {
             };
             const des = new Despesa();
             const dados = await des.salvar(despesa);
-            return res.status(200).json(dados);
+            return res.status(201).json(dados);
         } catch (error) {
             return res.status(400).json({ error: error.error });
         }

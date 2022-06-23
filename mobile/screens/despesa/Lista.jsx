@@ -15,54 +15,45 @@ import {
 } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useNavigation } from '@react-navigation/native';
-import DataTable, { COL_TYPES } from 'react-native-datatable-component';
-import SyncStorage from '@react-native-async-storage/async-storage';
-import configuracao from '../../services/api';
-import axios from 'axios';
-
+import { useNavigation } from "@react-navigation/native";
+import DataTable, { COL_TYPES } from "react-native-datatable-component";
+import SyncStorage from "@react-native-async-storage/async-storage";
+import configuracao from "../../services/api";
+import axios from "axios";
 
 export function DespesaForm({ props }) {
-
   const [conta, setConta] = useState("");
   const [banco, setBanco] = useState("");
-  const [nomeBanco, setNomeBanco] = useState('');
+  const [nomeBanco, setNomeBanco] = useState("");
   const navigation = useNavigation();
-  const [autenticacao, setAutenticacao] = useState('');
+  const [autenticacao, setAutenticacao] = useState("");
   const [despesa, setDespesa] = useState([]);
+  const [validacao, setValidacao] = useState('');
 
   useEffect(() => {
-    var listaDespesa = {};
+    var config = {};
     async function loadData() {
-      await SyncStorage.getItem('@user').then((value) => {       
-        setAutenticacao(JSON.parse(value).autorizacao);       
+      await SyncStorage.getItem("@user").then((value) => {
+        setAutenticacao(JSON.parse(value).autorizacao);
+        config = {
+          method: "get",
+          url: configuracao.url_base_api + "/despesa/listaAll",
+          headers: {
+            Authorization: "Bearer " + configuracao.token,
+            autorizacao: JSON.parse(value).autorizacao,
+          },
+        };
       });
-      var config = {
-        method: 'get',
-        url: configuracao.url_base_api + '/despesa/listaAll',
-        headers: {
-          'Authorization': 'Bearer ' + configuracao.token,
-          'autorizacao': autenticacao
-        }
-      }   
-      axios(config).then((resposta) => {        
-      resposta.data.map((c, i) => { 
-        
-        listaDespesa = {
-          id: c.id,
-          despesa: c.despesa
-        }        
-      })
-      console.log(listaDespesa)
-      })
+      axios(config)
+        .then((resposta) => {
+          setDespesa(resposta.data);
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
     }
     loadData();
   }, []);
-
-
-  function teste() {
-    console.log(conta, banco, nomeBanco);
-  }
 
   return (
     <KeyboardAwareScrollView
@@ -112,12 +103,20 @@ export function DespesaForm({ props }) {
                   md: "4",
                 }}
               >
+                 <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"} marginTop={-10} >
+                    {props.route.params?.mensagem}           
+                  </Text> 
+                <Button
+                  backgroundColor={"rgb(77, 29 ,149)"}
+                  onPress={() => {
+                    props.navigation.navigate("Despesa");
+                  }}
+                >
+                  Novo
+                </Button>
 
-
-
-                <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Despesa') }}>Novo</Button>
-
-                <Text textAlign={"center"}
+                <Text
+                  textAlign={"center"}
                   fontSize="md"
                   fontWeight="normal"
                   _light={{
@@ -128,21 +127,26 @@ export function DespesaForm({ props }) {
                 </Text>
 
                 <DataTable
-                  onRowSelect={(row) => { console.log(row) }}
-                  data= {despesa} // list of objects
-                  colNames={['Despesa', 'Excluir']} //List of Strings
+                   onRowSelect={(row) => { console.log(row) }}
+                  data={despesa} // list of objects
+                  colNames={["despesa", "Excluir"]} //List of Strings
                   colSettings={[
-                    { name: 'Despesa', type: COL_TYPES.STRING, width: '70%' },
-                    { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
-                  ]}//List of Objects
+                    { name: "despesa", type: COL_TYPES.STRING, width: "70%" },
+                    { name: "Excluir", type: COL_TYPES.CHECK_BOX },
+                  ]} //List of Objects
                   noOfPages={2} //number
-                  backgroundColor={'#aaa8a833'} //Table Background Color
-                  headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
+                  backgroundColor={"#aaa8a833"} //Table Background Color
+                  headerLabelStyle={{ color: "rgb(77, 29 ,149)", fontSize: 12 }} //Text Style Works
                 />
 
-                <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Despesa') }}>Excluir</Button>
-
-
+                <Button
+                  backgroundColor={"rgb(77, 29 ,149)"}
+                  onPress={() => {
+                    props.navigation.navigate("Despesa");
+                  }}
+                >
+                  Excluir
+                </Button>
               </VStack>
             </VStack>
           </VStack>
@@ -198,7 +202,9 @@ export default function Despesa(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  onPress={() => {
+                    props.navigation.goBack();
+                  }}
                   icon={
                     <Icon
                       size="6"
@@ -213,10 +219,16 @@ export default function Despesa(props) {
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>
+                <Text
+                  fontSize="3xl"
+                  fontWeight="bold"
+                  color="coolGray.50"
+                  textAlign={"center"}
+                >
                   Despesas cadastrados
-                </Text >
-                <Text textAlign={"center"}
+                </Text>
+                <Text
+                  textAlign={"center"}
                   fontSize="md"
                   fontWeight="normal"
                   _dark={{
@@ -225,8 +237,7 @@ export default function Despesa(props) {
                   _light={{
                     color: "primary.300",
                   }}
-                >
-                </Text>
+                ></Text>
               </VStack>
             </VStack>
           </Hidden>

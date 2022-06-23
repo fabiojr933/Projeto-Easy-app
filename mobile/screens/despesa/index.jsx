@@ -23,11 +23,45 @@ import IconGoogle from "./components/IconGoogle";
 import IconFacebook from "./components/IconFacebook";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import SyncStorage from "@react-native-async-storage/async-storage";
+import configuracao from "../../services/api";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+
 export function DespesaForm({ props }) {
   // const router = useRouter(); //use incase of Nextjs
-  const [text, setText] = useState("");
-  
- 
+  const [nome, setNome] = useState("");
+  const [validacao, setValidacao] = useState('');
+  const navigation = useNavigation();
+
+  async function salvarDespesa() {
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    const data = { 'despesa': nome };
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/despesa/salvar",
+      headers: {
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+      data: data,
+    };
+    console.log(config)
+    axios(config).then((resposta) => {
+      if (resposta.status == 201 ) {
+        navigation.navigate('ListaDespesa', { mensagem: 'Cadastro realizado com sucesso' });
+      }
+      if(resposta.status == 400){
+        setValidacao(error.response.data.error)
+      }
+    }).catch((error) => {
+      setValidacao(error.response.data.error);
+    })
+  }
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -65,7 +99,7 @@ export function DespesaForm({ props }) {
         <VStack space="7">
           <Hidden till="md">
             <Text fontSize="lg" fontWeight="normal">
-            Faça seu cadastro abaixo
+              Faça seu cadastro abaixo
             </Text>
           </Hidden>
           <VStack>
@@ -76,14 +110,17 @@ export function DespesaForm({ props }) {
                   md: "4",
                 }}
               >
+                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+              {validacao}
+                  </Text> 
                 <FloatingLabelInput
                   isRequired
                   label="Descrição"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
-                  defaultValue={text}
-                  onChangeText={(txt) => setText(txt)}
+                  defaultValue={nome}
+                  onChangeText={(nome) => setNome(nome)}
                   _text={{
                     fontSize: "sm",
                     fontWeight: "medium",
@@ -94,7 +131,7 @@ export function DespesaForm({ props }) {
                   _light={{
                     borderColor: "coolGray.300",
                   }}
-                />                
+                />
               </VStack>
 
               <Button
@@ -110,13 +147,11 @@ export function DespesaForm({ props }) {
                 _dark={{
                   bg: "primary.700",
                 }}
-                onPress={() => {
-                  props.navigation.navigate("ProductScreen");
-                }}
+                onPress={ salvarDespesa }
               >
                 CADASTRAR
               </Button>
-            </VStack>           
+            </VStack>
           </VStack>
         </VStack>
       </VStack>
@@ -170,8 +205,10 @@ export default function Despesa(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}                    
-                  icon={ 
+                  onPress={() => {
+                    props.navigation.navigate("ProductScreen");
+                  }}
+                  icon={
                     <Icon
                       size="6"
                       as={AntDesign}
@@ -181,12 +218,12 @@ export default function Despesa(props) {
                   }
                 />
                 <Text color="coolGray.50" fontSize="lg">
-                Voltar
+                  Voltar
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">                  
-                Cadastro de Despesa
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                  Cadastro de Despesa
                 </Text>
                 <Text
                   fontSize="md"
