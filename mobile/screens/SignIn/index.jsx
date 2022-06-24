@@ -1,26 +1,6 @@
-import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Link,
-  Checkbox,
-  Divider,
-  Image,
-  useColorModeValue,
-  IconButton,
-  Icon,
-  Pressable,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-} from "native-base";
+import React, { useState, useEffect } from "react";
+import { Button, HStack, VStack, Text, Link, Checkbox, Divider, Image, useColorModeValue, IconButton, Icon, Pressable, Center, Hidden, StatusBar, Stack, Box, } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
-import IconGoogle from "./components/IconGoogle";
-import IconFacebook from "./components/IconFacebook";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from 'axios';
@@ -29,41 +9,51 @@ import { useNavigation } from '@react-navigation/native';
 import SyncStorage from '@react-native-async-storage/async-storage';
 
 export function SignInForm({ props }) {
-  // const router = useRouter(); //use incase of Nextjs
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPass, setShowPass] = React.useState(false);
   const [validacao, setValidacao] = useState('');
-  const navigation = useNavigation(); 
-  
-  async function login(){
-    const data = {'email': email, 'senha': senha };
+  const navigation = useNavigation();
+
+  async function login() {
+    const data = { 'email': email, 'senha': senha };
     const config = {
       method: 'post',
       url: configuracao.url_base_api + '/login/autenticar',
       headers: {
-        'Authorization': 'Bearer ' + configuracao.token, 
+        'Authorization': 'Bearer ' + configuracao.token,
       },
       data, data
     }
     try {
       var api = await axios(config);
-      if(api.status == 200){
-        const token = {          
-            'autorizacao': api.data.autorizacao, 
-            'email': api.data.email, 
-            'id_cliente': api.data.id ,          
-        } 
+      if (api.status == 200) {
+        const token = {
+          'autorizacao': api.data.autorizacao,
+          'email': api.data.email,
+          'id_cliente': api.data.id,
+        }
         const jsonValue = JSON.stringify(token)
+        console.log(jsonValue);
         await SyncStorage.setItem('@user', jsonValue);
         navigation.navigate('ProductScreen');
-      }      
-    } catch (error) {  
-      console.log(error.response)  
+      }
+    } catch (error) {
+      console.log(error.response)
       setValidacao(error.response.data.error)
     }
   }
- 
+
+  useEffect(() => {
+    async function loadData() {
+      await SyncStorage.getItem("@user").then((value) => {
+        setAutenticacao(JSON.parse(value).autorizacao);
+        setEmail(JSON.parse(value).email)
+      });
+    }
+    loadData();
+  }, [])
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -101,7 +91,7 @@ export function SignInForm({ props }) {
         <VStack space="7">
           <Hidden till="md">
             <Text fontSize="lg" fontWeight="normal">
-            Faça login para continuar!
+              Faça login para continuar!
             </Text>
           </Hidden>
           <VStack>
@@ -112,10 +102,10 @@ export function SignInForm({ props }) {
                   md: "4",
                 }}
               >
-                 <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"}  >
-                    {props.route.params?.mensagem}
-                    {validacao}
-                  </Text> 
+                <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"}  >
+                  {props.route.params?.mensagem}
+                  {validacao}
+                </Text>
                 <FloatingLabelInput
                   isRequired
                   label="Email"
@@ -229,62 +219,12 @@ export function SignInForm({ props }) {
                 onPress={login}
               >
                 ENTRAR
-              </Button>
-              <HStack
-                mt="5"
-                space="2"
-                mb={{
-                  base: 6,
-                  md: 7,
-                }}
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Divider
-                  w="30%"
-                  _light={{
-                    bg: "coolGray.200",
-                  }}
-                  _dark={{
-                    bg: "coolGray.700",
-                  }}
-                ></Divider>
-                <Text
-                  fontWeight="medium"
-                  _light={{
-                    color: "coolGray.300",
-                  }}
-                  _dark={{
-                    color: "coolGray.500",
-                  }}
-                >
-                  or
-                </Text>
-                <Divider
-                  w="30%"
-                  _light={{
-                    bg: "coolGray.200",
-                  }}
-                  _dark={{
-                    bg: "coolGray.700",
-                  }}
-                ></Divider>
-              </HStack>
-            </VStack>
-            <Center>
-              <HStack space="4">
-                <Pressable>
-                  <IconFacebook />
-                </Pressable>
-                <Pressable>
-                  <IconGoogle />
-                </Pressable>
-              </HStack>
-            </Center>
+              </Button>             
+            </VStack>            
           </VStack>
         </VStack>
-        <HStack
-          mb="4"
+        <HStack     
+          mb="10"
           space="1"
           safeAreaBottom
           alignItems="center"
@@ -302,9 +242,8 @@ export function SignInForm({ props }) {
               color: "coolGray.400",
             }}
           >
-          Não tem uma conta?
+            Não tem uma conta?
           </Text>
-          {/* Opening Link Tag navigateTo:"SignUp" */}
           <Link
             _text={{
               fontWeight: "bold",
@@ -323,10 +262,9 @@ export function SignInForm({ props }) {
             onPress={() => {
               props.navigation.navigate("SignUp");
             }}
-          >            
-          Inscrever-se
-          </Link>
-          {/* Closing Link Tag */}
+          >
+            Inscrever-se
+          </Link>   
         </HStack>
       </VStack>
     </KeyboardAwareScrollView>
@@ -379,7 +317,7 @@ export default function SignIn(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => {}}
+                  onPress={() => { }}
                   icon={
                     <Icon
                       size="6"
@@ -390,12 +328,12 @@ export default function SignIn(props) {
                   }
                 />
                 <Text color="coolGray.50" fontSize="lg">
-                Entrar
+                  Entrar
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">                  
-                Bem vindo de volta,
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                  Bem vindo de volta,
                 </Text>
                 <Text
                   fontSize="md"

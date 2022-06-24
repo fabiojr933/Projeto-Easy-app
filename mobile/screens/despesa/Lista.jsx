@@ -1,21 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Image,
-  IconButton,
-  Icon,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-  Spinner,
-  Heading  
-
-} from "native-base";
+import { Button, HStack, VStack, Text, Image, IconButton, Icon, Center, Hidden, StatusBar, Stack, Box, Spinner, Heading  } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
@@ -26,8 +10,6 @@ import axios from "axios";
 import { Alert  } from 'react-native'
 
 export function DespesaForm({ props }) {
-  const [conta, setConta] = useState("");
-  const [banco, setBanco] = useState("");
   const [mensagem, setMensagem] = useState();
   const navigation = useNavigation();
   const [autenticacao, setAutenticacao] = useState("");
@@ -35,9 +17,7 @@ export function DespesaForm({ props }) {
   const [validacao, setValidacao] = useState('');
   const [tempo, setTempo] = useState(true);
   const [despesaSelecionada, setDespesaSelecionada] = useState([]);
-  const [load,setLoad] = useState(true)
-
-
+  const [load,setLoad] = useState(true);
 
   function Carregamento(){
     var config = {};
@@ -54,7 +34,6 @@ export function DespesaForm({ props }) {
           },
         };
       });
-      console.log(config)
       axios(config)
         .then((resposta) => {
           setDespesa(resposta.data);
@@ -101,11 +80,11 @@ export function DespesaForm({ props }) {
   if (tempo == true) {
     return (
       <HStack space={2} justifyContent="center" marginTop='200'>
-        <Spinner size="lg" color="#ffffff" />
-        <Heading color="#ffffff" fontSize="2xl">
+        <Spinner size="sm" color="#ffffff" />
+        <Heading color="#ffffff" fontSize="21">
           Carregando
         </Heading>
-        <Heading color="#ffffff" fontSize="2xl">
+        <Heading color="#ffffff" fontSize="21">
           Aguarde....
         </Heading>
       </HStack>

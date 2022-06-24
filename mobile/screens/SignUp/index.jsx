@@ -1,64 +1,59 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Checkbox,
-  Image,
-  HStack,
-  VStack,
-  Text,
-  Link,
-  Divider,
-  Icon,
-  IconButton,
-  useColorModeValue,
-  Pressable,
-  Hidden,
-  Center,
-  StatusBar,
-  Box,
-  Stack,
-} from "native-base";
+import React, { useState, useEffect } from "react";
+import { Button, Checkbox, Image, Modal, HStack, VStack, Text, Link, Divider, Icon, IconButton, useColorModeValue, Pressable, Hidden, Center, StatusBar, Box, Stack, } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
-import IconGoogle from "./components/IconGoogle";
-import IconFacebook from "./components/IconFacebook";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from 'axios';
 import configuracao from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
+import { Alert } from 'react-native';
 
 function SignUpForm({ props }) {
-  // const router = useRouter(); //use incase of Nextjs
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [showPass, setShowPass] = React.useState(false);
   const [validacao, setValidacao] = useState('');
-  const navigation = useNavigation(); 
+  const [showModal, setShowModal] = useState(false);
+  const [ischecked, setChecked] = useState(false);
+  const [load, setLoad] = useState(true);
+  const navigation = useNavigation();
 
-  async function salvarUsuario(){
-    const data = {'email': email, 'senha': senha, 'nome': nome};
-    var config = {
-      method: 'post',
-      url: configuracao.url_base_api +'/usuario/salvar',
-      headers: {
-        'Authorization': 'Bearer ' + configuracao.token, 
-      },
-      data: data
-    }    
-    try {
-      var api = await axios(config);
-      if(api.status == 201){
-        navigation.navigate('SignIn', {mensagem: 'Cadastro realizado com sucesso'});
+  async function salvarUsuario() {
+    if (ischecked != true) {
+      return Alert.alert('Atenção', 'É preciso aceitar os termos de uso');
+    } else {
+      const data = { 'email': email, 'senha': senha, 'nome': nome };
+      var config = {
+        method: 'post',
+        url: configuracao.url_base_api + '/usuario/salvar',
+        headers: {
+          'Authorization': 'Bearer ' + configuracao.token,
+        },
+        data: data
       }
-      if(api.status == 400){
+      try {
+        var api = await axios(config);
+        if (api.status == 201) {
+          navigation.navigate('SignIn', { mensagem: 'Cadastro realizado com sucesso' });
+        }
+        if (api.status == 400) {
+          setValidacao(error.response.data.error)
+        }
+      } catch (error) {
         setValidacao(error.response.data.error)
       }
-    } catch (error) {     
-      setValidacao(error.response.data.error)
-    }
-   
+    }''
   }
+
+  async function Checked() {
+    setChecked(true);
+  }
+
+
+
+
+
 
   return (
     <KeyboardAwareScrollView
@@ -96,8 +91,8 @@ function SignUpForm({ props }) {
       >
         <VStack space="7">
           <Hidden till="md">
-            <Text fontSize="lg" fontWeight="normal">             
-          
+            <Text fontSize="lg" fontWeight="normal">
+
             </Text>
           </Hidden>
           <VStack>
@@ -107,10 +102,10 @@ function SignUpForm({ props }) {
                   base: "7",
                   md: "4",
                 }}
-              >       
-              <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
-              {validacao}
-                  </Text>         
+              >
+                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+                  {validacao}
+                </Text>
                 <FloatingLabelInput
                   isRequired={true}
                   label="Email"
@@ -167,7 +162,7 @@ function SignUpForm({ props }) {
                   }}
                 />
 
-            <FloatingLabelInput
+                <FloatingLabelInput
                   isRequired
                   label="Nome"
                   labelColor="#9ca3af"
@@ -189,55 +184,49 @@ function SignUpForm({ props }) {
               </VStack>
               <Checkbox
                 alignItems="flex-start"
-                defaultIsChecked
+                isChecked={ischecked}
+                onChange={Checked}
                 value="demo"
                 colorScheme="primary"
-                accessibilityLabel="Remember me"
-              >
-                <HStack alignItems="center">
-                  <Text fontSize="sm" color="coolGray.400" pl="2">
-                  Eu aceito o{" "}
-                  </Text>
-                  <Link
-                    _text={{
-                      fontSize: "sm",
-                      fontWeight: "semibold",
-                      textDecoration: "none",
-                    }}
-                    _light={{
-                      _text: {
-                        color: "primary.900",
-                      },
-                    }}
-                    _dark={{
-                      _text: {
-                        color: "primary.500",
-                      },
-                    }}
-                  >                   
-            Termos de uso
-                  </Link>
-                  <Text fontSize="sm"> </Text>
+                accessibilityLabel="Remember me" >
 
-                  <Link
-                    _text={{
-                      fontSize: "sm",
-                      fontWeight: "semibold",
-                      textDecoration: "none",
-                    }}
-                    _light={{
-                      _text: {
-                        color: "primary.900",
-                      },
-                    }}
-                    _dark={{
-                      _text: {
-                        color: "primary.500",
-                      },
-                    }}>                    
-            
-                  </Link>
+
+                <HStack alignItems="center">
+                  <Link fontSize="sm" color="coolGray.400" pl="2" onPress={() => setShowModal(true)}>Eu aceito termos de uso</Link>
+                  <Modal isOpen={showModal} onClose={() => setShowModal(false)} _backdrop={{
+                    _dark: {
+                      bg: "coolGray.800"
+                    },
+                    bg: "warmGray.900"
+                  }}>
+                    <Modal.Content maxWidth="450" maxH="412" >
+                      <Modal.CloseButton />
+                      <Modal.Header>Política de Privacidade</Modal.Header>
+                      <Modal.Body>
+                        Esse aplicativo está sendo distribuído na licença: "ISC" em 2022, quando todos os módulos estiverem prontos principalmente o modulo OFX
+                        será cobrado um valor simbólico de R$: 9,99, para ajuda de custo.
+                        Modulo OFX vai ser um modulo onde vai importar todo o extrato bancário, independente da conta bancaria, até hoje nenhum aplicativo possuem essa função.
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button.Group space={2}>
+                          <Button variant="ghost" colorScheme="blueGray" onPress={() => {
+                            setShowModal(false);
+                          }}>
+                            Não aceito
+                          </Button>
+                          <Button onPress={() => {
+                            Checked();
+                            setShowModal(false);
+                          }}>
+                            Aceito
+                          </Button>
+                        </Button.Group>
+                      </Modal.Footer>
+                    </Modal.Content>
+                  </Modal>
                 </HStack>
+
+
               </Checkbox>
               <Button
                 size="md"
@@ -254,8 +243,8 @@ function SignUpForm({ props }) {
                 }}
                 onPress={salvarUsuario}
               >
-                
-            INSCREVER-SE
+
+                INSCREVER-SE
               </Button>
               <HStack
                 space="2"
@@ -266,52 +255,12 @@ function SignUpForm({ props }) {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Divider
-                  w="30%"
-                  _light={{
-                    bg: "coolGray.200",
-                  }}
-                  _dark={{
-                    bg: "coolGray.700",
-                  }}
-                ></Divider>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  _light={{
-                    color: "coolGray.300",
-                  }}
-                  _dark={{
-                    color: "coolGray.500",
-                  }}
-                >
-                  or
-                </Text>
-                <Divider
-                  w="30%"
-                  _light={{
-                    bg: "coolGray.200",
-                  }}
-                  _dark={{
-                    bg: "coolGray.700",
-                  }}
-                ></Divider>
               </HStack>
-            </VStack>
-            <Center>
-              <HStack space="4">
-                <Pressable>
-                  <IconFacebook />
-                </Pressable>
-                <Pressable>
-                  <IconGoogle />
-                </Pressable>
-              </HStack>
-            </Center>
+            </VStack>           
           </VStack>
         </VStack>
         <HStack
-          mb="4"
+          mb="10"
           space="1"
           alignItems="center"
           justifyContent="center"
@@ -328,8 +277,8 @@ function SignUpForm({ props }) {
             _dark={{
               color: "coolGray.400",
             }}
-          >            
-          já tem uma conta?
+          >
+            já tem uma conta?
           </Text>
           {/* Opening Link Tag navigateTo:"SignIn" */}
           <Link
@@ -408,7 +357,7 @@ export default function SignUp(props) {
                 <IconButton
                   pl="0"
                   variant="unstyled"
-                  onPress={() => {}}
+                  onPress={() => { }}
                   icon={
                     <Icon
                       size="6"
@@ -418,13 +367,13 @@ export default function SignUp(props) {
                     />
                   }
                 />
-                <Text color="coolGray.50" fontSize="lg">                
-              Inscrever-se
+                <Text color="coolGray.50" fontSize="lg">
+                  Inscrever-se
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">                 
-                Bem-vindo
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                  Bem-vindo
                 </Text>
                 <Text
                   fontSize="md"

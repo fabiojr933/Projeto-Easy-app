@@ -1,32 +1,45 @@
 import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Link,
-  Checkbox,
-  Divider,
-  Image,
-  useColorModeValue,
-  IconButton,
-  Icon,
-  Pressable,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-} from "native-base";
-import { AntDesign, Entypo } from "@expo/vector-icons";
-import IconGoogle from "./components/IconGoogle";
-import IconFacebook from "./components/IconFacebook";
+import { Button, HStack, VStack, Text, Image, useColorModeValue, IconButton, Icon, Pressable, Center, Hidden, StatusBar, Stack, Box,} from "native-base";
+import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import SyncStorage from "@react-native-async-storage/async-storage";
+import configuracao from "../../services/api";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+
 export function Receita({ props }) {
-  // const router = useRouter(); //use incase of Nextjs
-  const [text, setText] = useState("");
-  
+  const [nome, setNome] = useState(""); 
+  const [validacao, setValidacao] = useState('');
+  const navigation = useNavigation();
+
+  async function salvarReceita() {
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    const data = { 'receita': nome };
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/receita/salvar",
+      headers: {
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+      data: data,
+    };
+    console.log(config)
+    axios(config).then((resposta) => {
+      if (resposta.status == 201 || resposta.status == 200) {
+        navigation.navigate('ListaReceita');
+      }
+      if(resposta.status == 400){
+        setValidacao(error.response.data.error)
+      }
+    }).catch((error) => {
+      setValidacao(error.response.data.error);
+    })
+  }
  
   return (
     <KeyboardAwareScrollView
@@ -76,14 +89,17 @@ export function Receita({ props }) {
                   md: "4",
                 }}
               >
+                 <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+              {validacao}
+                  </Text> 
                 <FloatingLabelInput
                   isRequired
                   label="Descrição"
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
-                  defaultValue={text}
-                  onChangeText={(txt) => setText(txt)}
+                  defaultValue={nome}
+                  onChangeText={(nome) => setNome(nome)}
                   _text={{
                     fontSize: "sm",
                     fontWeight: "medium",
@@ -110,9 +126,7 @@ export function Receita({ props }) {
                 _dark={{
                   bg: "primary.700",
                 }}
-                onPress={() => {
-                  props.navigation.navigate("ProductScreen");
-                }}
+                onPress={ salvarReceita }
               >
                 CADASTRAR
               </Button>

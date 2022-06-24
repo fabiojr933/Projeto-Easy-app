@@ -1,86 +1,85 @@
 import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Link,
-  Checkbox,
-  Divider,
-  Image,
-  useColorModeValue,
-  IconButton,
-  Icon,
-  Pressable,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Select,
-  Modal, 
-  Box,
-} from "native-base";
-import { AntDesign, Entypo } from "@expo/vector-icons";
-import IconGoogle from "./components/IconGoogle";
-import IconFacebook from "./components/IconFacebook";
+import { Button, HStack, VStack, Text, Image, useColorModeValue, IconButton, Icon, Pressable, Center, Hidden, StatusBar, Stack, Select, Modal, Box, } from "native-base";
+import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import configuracao from "../../services/api";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+import SyncStorage from "@react-native-async-storage/async-storage";
+
 export function CartaoForm({ props }) {
- 
+
   const [showModal, setShowModal] = useState(false);
-  const [conta, setConta] = useState(""); 
+  const [conta, setConta] = useState("");
   const [banco, setBanco] = useState("");
   const [nomeBanco, setNomeBanco] = useState('');
-  
-  
-  const listaBanco = [
-    { id: '77', banco: 'Banco Inter'},
-    { id: '748', banco: 'Sicredi S.A'},
-    { id: '735', banco: 'Neon Pagamentos'},
-    { id: '290', banco: 'PagBank'},
-    { id: '237', banco: 'Next'},
-    { id: '260', banco: 'Nubank'},
-    { id: '323', banco: 'Mercado Pago'},
-    { id: '380', banco: 'PicPay'},
-    { id: '237', banco: 'Banco Bradesco S.A'},
-    { id: '104', banco: 'Caixa Econômica Federal'},
-    { id: '756', banco: 'Sicoob'},
-    { id: '1', banco: 'Banco do Brasil S.A'},    
-    { id: '033', banco: 'Banco SANTANDER'},
-  ] 
+  const [validacao, setValidacao] = useState('');
+  const navigation = useNavigation();
 
-  function carregarBnaco(banco){   
+
+  const listaBanco = [
+    { id: '77', banco: 'Banco Inter' },
+    { id: '748', banco: 'Sicredi S.A' },
+    { id: '735', banco: 'Neon Pagamentos' },
+    { id: '290', banco: 'PagBank' },
+    { id: '237', banco: 'Next' },
+    { id: '260', banco: 'Nubank' },
+    { id: '323', banco: 'Mercado Pago' },
+    { id: '380', banco: 'PicPay' },
+    { id: '237', banco: 'Banco Bradesco S.A' },
+    { id: '104', banco: 'Caixa Econômica Federal' },
+    { id: '756', banco: 'Sicoob' },
+    { id: '1', banco: 'Banco do Brasil S.A' },
+    { id: '033', banco: 'Banco SANTANDER' },
+  ]
+
+  function carregarBanco(banco) {
     setBanco(banco);
     const bancoSelecionado = listaBanco.find((x) => x.id == banco);
     setNomeBanco(bancoSelecionado.banco);
   }
 
-  function teste(){
-    console.log(conta, banco, nomeBanco);
+  async function salvarConta() {
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    const data = { 'banco': banco, 'conta': conta, 'nome': nomeBanco };
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/conta/salvar",
+      headers: {
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+      data: data,
+    };
+    console.log(data)
+    console.log(config)
+
+    axios(config).then((resposta) => {
+      if (resposta.status == 201 || resposta.status == 200) {
+        navigation.navigate('ListaCartao');
+      }
+      if (resposta.status == 400) {
+        setValidacao(error.response.data.error)
+      }
+    }).catch((error) => {
+      setValidacao(error.response.data.error);
+    })
   }
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={{
-        flex: 1,
-      }}
-    >
-      <VStack
-        flex="1"
-        px="6"
-        py="9"
+    <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1, }} style={{ flex: 1, }} >
+      <VStack flex="1" px="6" py="9"
         _light={{
           bg: "white",
         }}
         _dark={{
           bg: "coolGray.800",
         }}
-        space="3"
-        justifyContent="space-between"
-        borderTopRightRadius={{
+        space="3" justifyContent="space-between" borderTopRightRadius={{
           base: "2xl",
           md: "xl",
         }}
@@ -96,7 +95,7 @@ export function CartaoForm({ props }) {
         <VStack space="7">
           <Hidden till="md">
             <Text fontSize="lg" fontWeight="normal">
-            Faça seu cadastro abaixo
+              Faça seu cadastro abaixo
             </Text>
           </Hidden>
           <VStack>
@@ -105,12 +104,13 @@ export function CartaoForm({ props }) {
                 space={{
                   base: "7",
                   md: "4",
-                }}
-              >
-                 <Select placeholder="Selecione um Cartão" onValueChange={ carregarBnaco }>
-           
+                }}>
+                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+                  {validacao}
+                </Text>
+                <Select placeholder="Selecione um Cartão" onValueChange={carregarBanco}>
                   <Select.Item label="Sicredi S.A." value="748" key="1" />
-                  <Select.Item label="Banco Inter" value="77"key="2"/>
+                  <Select.Item label="Banco Inter" value="77" key="2" />
                   <Select.Item label="Neon Pagamentos" value="735" key="3" />
                   <Select.Item label="PagBank" value="290" key="4" />
                   <Select.Item label="Next" value="237" key="5" />
@@ -120,9 +120,9 @@ export function CartaoForm({ props }) {
                   <Select.Item label="Banco SANTANDER" value="033" key="9" />
                   <Select.Item label="Banco Bradesco S.A" value="237" key="10" />
                   <Select.Item label="Caixa Econômica Federal" value="104" key="11" />
-                  <Select.Item label="Sicoob" value="756" key="12"/>
-                  <Select.Item label="Banco do Brasil S.A" value="1" key="13"/>
-                </Select>     
+                  <Select.Item label="Sicoob" value="756" key="12" />
+                  <Select.Item label="Banco do Brasil S.A" value="1" key="13" />
+                </Select>
                 <FloatingLabelInput
                   isRequired
                   label="Numero da conta"
@@ -141,74 +141,57 @@ export function CartaoForm({ props }) {
                   _light={{
                     borderColor: "coolGray.300",
                   }}
-                /> 
-              </VStack>       
+                />
+              </VStack>
 
-
-
-              
               <Center>
-      <Button
-       mt="5"
-       size="md"
-       borderRadius="4"
-       _text={{
-         fontWeight: "medium",
-       }}
-       _light={{
-         bg: "primary.900",
-       }}
-       _dark={{
-         bg: "primary.700",
-       }}
-       onPress={() => setShowModal(true)}>Cadastrar</Button>
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} _backdrop={{
-      _dark: {
-        bg: "coolGray.800"
-      },
-      bg: "muted.900"
-    }}>
-        <Modal.Content maxWidth="350" maxH="260">
-          <Modal.CloseButton />
-          <Modal.Header>Atenção!</Modal.Header>
-          <Modal.Body>
-          O número da conta, tem que se o número real, pois se você usar a função da importação pelo 
-           arquivo OFX, vai gerar inconsistência, se colocar um número fictício.
-          </Modal.Body>
-          <Modal.Footer>
-            <Button.Group space={2}>
-              <Button variant="ghost" colorScheme="blueGray" onPress={() => {
-              setShowModal(false);
-            }}>
-                Cancelar
-              </Button>
-              <Button onPress={() => {
-              teste()  
-              setShowModal(false);
-            }}>
-                Cadastrar
-              </Button>
-            </Button.Group>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
-    </Center>
+                <Button
+                  mt="5"
+                  size="md"
+                  borderRadius="4"
+                  _text={{
+                    fontWeight: "medium",
+                  }}
+                  _light={{
+                    bg: "primary.900",
+                  }}
+                  _dark={{
+                    bg: "primary.700",
+                  }}
+                  onPress={() => setShowModal(true)}>Cadastrar</Button>
+                <Modal isOpen={showModal} onClose={() => setShowModal(false)} _backdrop={{
+                  _dark: {
+                    bg: "coolGray.800"
+                  },
+                  bg: "muted.900"
+                }}>
+                  <Modal.Content maxWidth="350" maxH="260">
+                    <Modal.CloseButton />
+                    <Modal.Header>Atenção!</Modal.Header>
+                    <Modal.Body>
+                      O número da conta, tem que se o número real, pois se você usar a função da importação pelo
+                      arquivo OFX, vai gerar inconsistência, se colocar um número fictício.
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button.Group space={2}>
+                        <Button variant="ghost" colorScheme="blueGray" onPress={() => {
+                          setShowModal(false);
+                        }}>
+                          Cancelar
+                        </Button>
+                        <Button onPress={() => {
+                          salvarConta()
+                          setShowModal(false);
+                        }}>
+                          Cadastrar
+                        </Button>
+                      </Button.Group>
+                    </Modal.Footer>
+                  </Modal.Content>
+                </Modal>
+              </Center>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
-            </VStack>           
+            </VStack>
           </VStack>
         </VStack>
       </VStack>
@@ -262,8 +245,8 @@ export default function Cartao(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ListaCartao') }}                    
-                  icon={ 
+                  onPress={() => { props.navigation.navigate('ListaCartao') }}
+                  icon={
                     <Icon
                       size="6"
                       as={AntDesign}
@@ -273,12 +256,12 @@ export default function Cartao(props) {
                   }
                 />
                 <Text color="coolGray.50" fontSize="lg">
-                Voltar
+                  Voltar
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">                  
-                Cadastro de Cartao
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                  Cadastro de Cartao
                 </Text>
                 <Text
                   fontSize="md"

@@ -6,7 +6,7 @@ class ContaController {
             const id_usuario = String(req.id_usuario);
             const conta = new Conta();
             const dados = await conta.listaAll(id_usuario);
-            return res.status(200).json(dados);
+            return res.status(201).json(dados);
         } catch (error) {
             return res.status(400).json({ error: error.error });
         }

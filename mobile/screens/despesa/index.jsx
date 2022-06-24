@@ -1,26 +1,6 @@
 import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Link,
-  Checkbox,
-  Divider,
-  Image,
-  useColorModeValue,
-  IconButton,
-  Icon,
-  Pressable,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-} from "native-base";
-import { AntDesign, Entypo } from "@expo/vector-icons";
-import IconGoogle from "./components/IconGoogle";
-import IconFacebook from "./components/IconFacebook";
+import { Button, HStack, VStack, Text, Image, useColorModeValue, IconButton, Box, Icon, Center, Hidden, StatusBar, Stack, } from "native-base";
+import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import SyncStorage from "@react-native-async-storage/async-storage";
@@ -29,7 +9,6 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 
 export function DespesaForm({ props }) {
-  // const router = useRouter(); //use incase of Nextjs
   const [nome, setNome] = useState("");
   const [validacao, setValidacao] = useState('');
   const navigation = useNavigation();
@@ -49,13 +28,11 @@ export function DespesaForm({ props }) {
       },
       data: data,
     };
-    console.log(config)
     axios(config).then((resposta) => {
-      if (resposta.status == 201 ) {
-      //  navigation.goBack();
+      if (resposta.status == 201) {
         navigation.navigate('ListaDespesa');
       }
-      if(resposta.status == 400){
+      if (resposta.status == 400) {
         setValidacao(error.response.data.error)
       }
     }).catch((error) => {
@@ -65,26 +42,15 @@ export function DespesaForm({ props }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={{
-        flex: 1,
-      }}
-    >
-      <VStack
-        flex="1"
-        px="6"
-        py="9"
+      contentContainerStyle={{ flexGrow: 1, }} style={{ flex: 1, }} >
+      <VStack flex="1" px="6" py="9"
         _light={{
           bg: "white",
         }}
         _dark={{
           bg: "coolGray.800",
         }}
-        space="3"
-        justifyContent="space-between"
-        borderTopRightRadius={{
+        space="3" justifyContent="space-between" borderTopRightRadius={{
           base: "2xl",
           md: "xl",
         }}
@@ -112,8 +78,8 @@ export function DespesaForm({ props }) {
                 }}
               >
                 <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
-              {validacao}
-                  </Text> 
+                  {validacao}
+                </Text>
                 <FloatingLabelInput
                   isRequired
                   label="Descrição"
@@ -135,10 +101,7 @@ export function DespesaForm({ props }) {
                 />
               </VStack>
 
-              <Button
-                mt="5"
-                size="md"
-                borderRadius="4"
+              <Button mt="5" size="md" borderRadius="4"
                 _text={{
                   fontWeight: "medium",
                 }}
@@ -148,7 +111,7 @@ export function DespesaForm({ props }) {
                 _dark={{
                   bg: "primary.700",
                 }}
-                onPress={ salvarDespesa }
+                onPress={salvarDespesa}
               >
                 CADASTRAR
               </Button>

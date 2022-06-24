@@ -1,137 +1,146 @@
-import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Image,
-  IconButton,
-  Icon,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-} from "native-base";
-import { AntDesign, Entypo } from "@expo/vector-icons";
+import React, { useState, useEffect } from "react";
+import { Button, HStack, VStack, Text, Image, IconButton, Icon, Center, Hidden, StatusBar, Stack, Box, Spinner, Heading } from "native-base";
+import { AntDesign } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import  { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import SyncStorage from "@react-native-async-storage/async-storage";
+import configuracao from "../../services/api";
+import axios from "axios";
+import { Alert } from 'react-native'
 
-export function ReceitaForm({ props }) { 
+export function ReceitaForm({ props }) {
 
-  const [conta, setConta] = useState(""); 
-  const [banco, setBanco] = useState("");
-  const [nomeBanco, setNomeBanco] = useState('');  
+  const [mensagem, setMensagem] = useState();
+  const [nomeBanco, setNomeBanco] = useState('');
+  const [autenticacao, setAutenticacao] = useState("");
+  const [tempo, setTempo] = useState(true);
+  const [receita, setReceita] = useState("");
+  const [receitaSelecionada, setReceitaSelecionada] = useState([]);
+  const [load, setLoad] = useState(true)
   const navigation = useNavigation();
 
-
-  function teste(){
-    console.log(conta, banco, nomeBanco);
+  function Carregamento() {
+    var config = {};
+    navigation.addListener('focus', () => setLoad(!load))
+    async function loadData() {
+      await SyncStorage.getItem("@user").then((value) => {
+        setAutenticacao(JSON.parse(value).autorizacao);
+        config = {
+          method: "get",
+          url: configuracao.url_base_api + "/receita/listaAll",
+          headers: {
+            Authorization: "Bearer " + configuracao.token,
+            autorizacao: JSON.parse(value).autorizacao,
+          },
+        };
+      });
+      axios(config)
+        .then((resposta) => {
+          setReceita(resposta.data);
+        })
+      setTimeout(() => {
+        setTempo(false)
+      }, 3000)
+        .catch((error) => {
+          console.log(error.response);
+        });
+    }
+    loadData();
   }
 
-  return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={{
-        flex: 1,
-      }}
-    >
-      <VStack
-        flex="1"
-        px="6"
-        py="9"
-        _light={{
-          bg: "white",
-        }}
-        _dark={{
-          bg: "coolGray.800",
-        }}
-        space="3"
-        justifyContent="space-between"
-        borderTopRightRadius={{
-          base: "2xl",
-          md: "xl",
-        }}
-        borderBottomRightRadius={{
-          base: "0",
-          md: "xl",
-        }}
-        borderTopLeftRadius={{
-          base: "2xl",
-          md: "0",
-        }}
-      >
-        <VStack space="7">
-          <Hidden till="md">
-            <Text fontSize="lg" fontWeight="normal">
-            Receitas cadastrados
-            </Text>
+  useEffect(() => {
+    Carregamento();
+  }, [load, navigation]);
+
+
+  async function deletarReceita() {
+    if (receitaSelecionada == [] || receitaSelecionada.length == 0 || receitaSelecionada == undefined) {
+      Alert.alert('Atenção', 'Para excluir precisa selecionar alguma receita');
+      return;
+    } else {
+      await SyncStorage.getItem("@user").then((value) => {
+        receitaSelecionada.map((v, k) => {
+          var config = {
+            method: 'PUT',
+            url: configuracao.url_base_api + '/receita/desativar/' + v.id,
+            headers: {
+              Authorization: "Bearer " + configuracao.token,
+              autorizacao: JSON.parse(value).autorizacao,
+            },
+          }
+          axios(config).then((response) => {
+          });
+        })
+      })
+      setMensagem('Despesa excluir com sucesso')
+      Carregamento();
+    }
+  }
+
+  if (tempo == true) {
+    return (
+      <HStack space={2} justifyContent="center" marginTop='200'>
+        <Spinner size="sm" color="#ffffff" />
+        <Heading color="#ffffff" fontSize="21">
+          Carregando
+        </Heading>
+        <Heading color="#ffffff" fontSize="21">
+          Aguarde....
+        </Heading>
+      </HStack>
+    )
+  } else {
+    return (
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1, }} style={{ flex: 1, }} >
+        <VStack flex="1" px="6" py="9"
+          _light={{
+            bg: "white",
+          }}
+          _dark={{
+            bg: "coolGray.800",
+          }}
+          space="3" justifyContent="space-between" borderTopRightRadius={{ base: "2xl", md: "xl", }}
+          borderBottomRightRadius={{ base: "0", md: "xl", }}
+          borderTopLeftRadius={{ base: "2xl", md: "0", }} >
+          <VStack space="7"><Hidden till="md"><Text fontSize="lg" fontWeight="normal">Receitas cadastrados </Text>
           </Hidden>
-          <VStack>
-            <VStack space="3">
-              <VStack
-                space={{
-                  base: "7",
-                  md: "4",
-                }}
-              >
-
-
-
-      <Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Receita') }}>Novo</Button>
-
-      <Text textAlign={"center"}
-                  fontSize="md"
-                  fontWeight="normal"                 
-                  _light={{
-                    color: "muted.900",
-                  }}
-                >
-                 Selecione abaixo para poder excluir
-                </Text>         
-
-      <DataTable
-        onRowSelect={(row) => { console.log(row)}}
-            data={[ 
-                {id: 1, Receita: 'Salario', Excluir: false},
-                {id: 2, Receita: 'Muhammad Akif', Excluir: false },
-                {id: 3, Receita: 'Muhammad Umar', Excluir: false },
-                {id: 4, Receita: 'Amna Shakeel', Excluir: false},
-                {id: 5, Receita: 'Muhammad Ammar', Excluir: false },
-                {id: 6, Receita: 'Muhammad Moiz', Excluir: false }
-            ]} // list of objects
-            colNames={['Receita', 'Excluir']} //List of Strings
-            colSettings={[
-              { name: 'Receita', type: COL_TYPES.STRING, width: '70%' }, 
-              { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
-            ]}//List of Objects
-            noOfPages={2} //number
-            backgroundColor={'#aaa8a833'} //Table Background Color
-            headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
-        />
-
-<Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Receita') }}>Excluir</Button>
-               
-               
-              </VStack>               
-            </VStack>           
+            <VStack>
+              <VStack space="3">
+                <VStack space={{ base: "7", md: "4", }}>
+                  <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"} marginTop={-10} >
+                    {mensagem}
+                  </Text>
+                  <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Receita') }}>Novo</Button>
+                  <Text textAlign={"center"} fontSize="md" fontWeight="normal"
+                    _light={{ color: "muted.900", }}>Selecione abaixo para poder excluir</Text>
+                  <DataTable
+                    onRowSelect={(row) => { setReceitaSelecionada([...receitaSelecionada, row]) }}
+                    data={receita}
+                    colNames={['receita', 'Excluir']}
+                    colSettings={[
+                      { name: 'receita', type: COL_TYPES.STRING, width: '70%' },
+                      { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
+                    ]}
+                    noOfPages={1}
+                    backgroundColor={'#aaa8a833'}
+                    headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }}
+                  />
+                  <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={deletarReceita}>Excluir</Button>
+                </VStack>
+              </VStack>
+            </VStack>
           </VStack>
         </VStack>
-      </VStack>
-    </KeyboardAwareScrollView>
-  );
+      </KeyboardAwareScrollView>
+    )
+  };
 }
 export default function Receita(props) {
   return (
     <>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="light-content"
-      />
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <Box
         safeAreaTop
         _light={{
@@ -141,8 +150,7 @@ export default function Receita(props) {
           bg: "coolGray.900",
         }}
       />
-      <Center
-        my="auto"
+      <Center my="auto"
         _dark={{
           bg: "coolGray.900",
         }}
@@ -168,37 +176,16 @@ export default function Receita(props) {
           <Hidden from="md">
             <VStack px="4" mt="4" mb="5" space="9">
               <HStack space="2" alignItems="center">
-                <IconButton
-                  variant="unstyled"
-                  pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}                    
-                  icon={ 
-                    <Icon
-                      size="6"
-                      as={AntDesign}
-                      name="arrowleft"
-                      color="coolGray.50"
-                    />
-                  }
-                />
-                <Text color="coolGray.50" fontSize="lg">
-                Voltar
-                </Text>
+                <IconButton variant="unstyled" pl="0"
+                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  icon={<Icon size="6" as={AntDesign} name="arrowleft" color="coolGray.50" />} />
+                <Text color="coolGray.50" fontSize="lg"> Voltar </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>                  
-                Receitas cadastrados
-                </Text >
-                <Text textAlign={"center"}
-                  fontSize="md"
-                  fontWeight="normal"
-                  _dark={{
-                    color: "coolGray.400",
-                  }}
-                  _light={{
-                    color: "primary.300",
-                  }}
-                >
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}> Receitas cadastrados </Text >
+                <Text textAlign={"center"} fontSize="md" fontWeight="normal"
+                  _dark={{ color: "coolGray.400", }}
+                  _light={{ color: "primary.300", }} >
                 </Text>
               </VStack>
             </VStack>

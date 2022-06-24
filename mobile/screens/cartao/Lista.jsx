@@ -1,150 +1,183 @@
-import React, { useState } from "react";
-import {
-  Button,
-  HStack,
-  VStack,
-  Text,
-  Image,
-  IconButton,
-  Icon,
-  Center,
-  Hidden,
-  StatusBar,
-  Stack,
-  Box,
-} from "native-base";
+import React, { useState, useEffect } from "react";
+import { Button, HStack, VStack, Text, Image, IconButton, Icon, Center, Hidden, StatusBar, Stack, Box, Spinner, Heading } from "native-base";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import  { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import SyncStorage from "@react-native-async-storage/async-storage";
+import configuracao from "../../services/api";
+import axios from "axios";
+import { Alert } from 'react-native'
 
-export function CartaoForm({ props }) { 
+export function CartaoForm({ props }) {
 
-  const [conta, setConta] = useState(""); 
-  const [banco, setBanco] = useState("");
-  const [nomeBanco, setNomeBanco] = useState('');  
+  const [tempo, setTempo] = useState(true);
+  const [conta, setConta] = useState("");
+  const [mensagem, setMensagem] = useState();
+  const [autenticacao, setAutenticacao] = useState("");
+  const [contaSelecionada, setContaSelecionada] = useState([]);
+  const [load, setLoad] = useState(true)
   const navigation = useNavigation();
 
-  
-  const listaBanco = [
-    { id: '77', banco: 'Banco Inter'},
-    { id: '748', banco: 'Sicredi S.A'},
-    { id: '735', banco: 'Neon Pagamentos'},
-    { id: '290', banco: 'PagBank'},
-    { id: '237', banco: 'Next'},
-    { id: '260', banco: 'Nubank'},
-    { id: '323', banco: 'Mercado Pago'},
-    { id: '380', banco: 'PicPay'},
-    { id: '237', banco: 'Banco Bradesco S.A'},
-    { id: '104', banco: 'Caixa Econômica Federal'},
-    { id: '756', banco: 'Sicoob'},
-    { id: '1', banco: 'Banco do Brasil S.A'},    
-    { id: '033', banco: 'Banco SANTANDER'},
-  ] 
-
-  function carregarBnaco(banco){   
-    setBanco(banco);
-    const bancoSelecionado = listaBanco.find((x) => x.id == banco);
-    setNomeBanco(bancoSelecionado.banco);
+  function Carregamento() {
+    var config = {};
+    navigation.addListener('focus', () => setLoad(!load))
+    async function loadData() {
+      await SyncStorage.getItem("@user").then((value) => {
+        setAutenticacao(JSON.parse(value).autorizacao);
+        config = {
+          method: "get",
+          url: configuracao.url_base_api + "/conta/listaAll",
+          headers: {
+            Authorization: "Bearer " + configuracao.token,
+            autorizacao: JSON.parse(value).autorizacao,
+          },
+        };
+      });
+      axios(config)
+        .then((resposta) => {
+          setConta(resposta.data);
+        })
+      setTimeout(() => {
+        setTempo(false)
+      }, 3000)
+        .catch((error) => {
+          console.log(error.response);
+        });
+    }
+    loadData();
   }
 
-  function teste(){
-    console.log(conta, banco, nomeBanco);
-  }
+  useEffect(() => {
+    Carregamento();
+  }, [load, navigation]);
 
-  return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-      }}
-      style={{
-        flex: 1,
-      }}
-    >
-      <VStack
-        flex="1"
-        px="6"
-        py="9"
-        _light={{
-          bg: "white",
+
+  async function deletarConta() {
+    if (contaSelecionada == [] || contaSelecionada.length == 0 || contaSelecionada == undefined) {
+      Alert.alert('Atenção', 'Para excluir precisa selecionar alguma conta');
+      return;
+    } else {
+      await SyncStorage.getItem("@user").then((value) => {
+        contaSelecionada.map((v, k) => {
+          var config = {
+            method: 'PUT',
+            url: configuracao.url_base_api + '/conta/desativar/' + v.id,
+            headers: {
+              Authorization: "Bearer " + configuracao.token,
+              autorizacao: JSON.parse(value).autorizacao,
+            },
+          }
+          axios(config).then((response) => {
+          });
+        })
+      })
+      setMensagem('Conta excluir com sucesso')
+      Carregamento();
+    }
+  }
+  if (tempo == true) {
+    return (
+      <HStack space={2} justifyContent="center" marginTop='200'>
+        <Spinner size="sm" color="#ffffff" />
+        <Heading color="#ffffff" fontSize="21">
+          Carregando
+        </Heading>
+        <Heading color="#ffffff" fontSize="21">
+          Aguarde....
+        </Heading>
+      </HStack>
+    )
+  } else {
+    return (
+      <KeyboardAwareScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
         }}
-        _dark={{
-          bg: "coolGray.800",
-        }}
-        space="3"
-        justifyContent="space-between"
-        borderTopRightRadius={{
-          base: "2xl",
-          md: "xl",
-        }}
-        borderBottomRightRadius={{
-          base: "0",
-          md: "xl",
-        }}
-        borderTopLeftRadius={{
-          base: "2xl",
-          md: "0",
+        style={{
+          flex: 1,
         }}
       >
-        <VStack space="7">
-          <Hidden till="md">
-            <Text fontSize="lg" fontWeight="normal">
-            Cartões cadastrados
-            </Text>
-          </Hidden>
-          <VStack>
-            <VStack space="3">
-              <VStack
-                space={{
-                  base: "7",
-                  md: "4",
-                }}
-              >
-
-
-
-      <Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Cartao') }}>Novo</Button>
-
-      <Text textAlign={"center"}
-                  fontSize="md"
-                  fontWeight="normal"                 
-                  _light={{
-                    color: "muted.900",
+        <VStack
+          flex="1"
+          px="6"
+          py="9"
+          _light={{
+            bg: "white",
+          }}
+          _dark={{
+            bg: "coolGray.800",
+          }}
+          space="3"
+          justifyContent="space-between"
+          borderTopRightRadius={{
+            base: "2xl",
+            md: "xl",
+          }}
+          borderBottomRightRadius={{
+            base: "0",
+            md: "xl",
+          }}
+          borderTopLeftRadius={{
+            base: "2xl",
+            md: "0",
+          }}
+        >
+          <VStack space="7">
+            <Hidden till="md">
+              <Text fontSize="lg" fontWeight="normal">
+                Contas cadastradas
+              </Text>
+            </Hidden>
+            <VStack>
+              <VStack space="3">
+                <VStack
+                  space={{
+                    base: "7",
+                    md: "4",
                   }}
                 >
-                 Selecione abaixo para poder excluir
-                </Text>         
 
-      <DataTable
-        onRowSelect={(row) => { console.log(row)}}
-            data={[ 
-                {id: 1, Cartao: 'Sicred', Excluir: false},
-                {id: 2, Cartao: 'Muhammad Akif', Excluir: false },
-                {id: 3, Cartao: 'Muhammad Umar', Excluir: false },
-                {id: 4, Cartao: 'Amna Shakeel', Excluir: false},
-                {id: 5, Cartao: 'Muhammad Ammar', Excluir: false },
-                {id: 6, Cartao: 'Muhammad Moiz', Excluir: false }
-            ]} // list of objects
-            colNames={['Cartao', 'Excluir']} //List of Strings
-            colSettings={[
-              { name: 'Cartao', type: COL_TYPES.STRING, width: '70%' }, 
-              { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
-            ]}//List of Objects
-            noOfPages={2} //number
-            backgroundColor={'#aaa8a833'} //Table Background Color
-            headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
-        />
 
-<Button backgroundColor={'rgb(77, 29 ,149)'}  onPress={ () => { props.navigation.navigate('Cartao') }}>Excluir</Button>
-               
-               
-              </VStack>               
-            </VStack>           
+                  <Text fontSize="sm" color="violet.800" pl="2" textAlign={"center"} marginTop={-10} >
+                    {mensagem}
+                  </Text>
+                  <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={() => { props.navigation.navigate('Cartao') }}>Novo</Button>
+
+                  <Text textAlign={"center"}
+                    fontSize="md"
+                    fontWeight="normal"
+                    _light={{
+                      color: "muted.900",
+                    }}
+                  >
+                    Selecione abaixo para poder excluir
+                  </Text>
+
+                  <DataTable
+                    onRowSelect={(row) => { setContaSelecionada([contaSelecionada, row]) }}
+                    data={conta} // list of objects
+                    colNames={['nome', 'Excluir']} //List of Strings
+                    colSettings={[
+                      { name: 'nome', type: COL_TYPES.STRING, width: '70%' },
+                      { name: 'Excluir', type: COL_TYPES.CHECK_BOX }
+                    ]}//List of Objects
+                    noOfPages={1} //number
+                    backgroundColor={'#aaa8a833'} //Table Background Color
+                    headerLabelStyle={{ color: 'rgb(77, 29 ,149)', fontSize: 12 }} //Text Style Works
+                  />
+
+                  <Button backgroundColor={'rgb(77, 29 ,149)'} onPress={deletarConta}>Excluir</Button>
+
+
+                </VStack>
+              </VStack>
+            </VStack>
           </VStack>
         </VStack>
-      </VStack>
-    </KeyboardAwareScrollView>
-  );
+      </KeyboardAwareScrollView>
+    )
+  };
 }
 export default function Cartao(props) {
   return (
@@ -193,8 +226,8 @@ export default function Cartao(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}                    
-                  icon={ 
+                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  icon={
                     <Icon
                       size="6"
                       as={AntDesign}
@@ -204,12 +237,12 @@ export default function Cartao(props) {
                   }
                 />
                 <Text color="coolGray.50" fontSize="lg">
-                Voltar
+                  Voltar
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>                  
-                Cartões cadastrados
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign={"center"}>
+                Contas cadastradas
                 </Text >
                 <Text textAlign={"center"}
                   fontSize="md"
