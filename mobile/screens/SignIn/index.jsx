@@ -110,6 +110,7 @@ export function SignInForm({ props }) {
                   isRequired
                   label="Email"
                   labelColor="#9ca3af"
+                  keyboardType={"email-address"}
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
                   defaultValue={email}

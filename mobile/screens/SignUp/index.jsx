@@ -110,6 +110,7 @@ function SignUpForm({ props }) {
                   isRequired={true}
                   label="Email"
                   labelColor="#9ca3af"
+                  keyboardType={"email-address"}
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
                   defaultValue={email}

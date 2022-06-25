@@ -15,6 +15,9 @@ import Cartao from "./screens/cartao"
 import ListaCartao from './screens/cartao/Lista';
 import ListaDespesa from './screens/despesa/Lista';
 import ListaReceita from './screens/receita/Lista';
+import Saida from './screens/saida';
+import Entrada from './screens/entrada';
+import OFX from './screens/ofx';
 import { LogBox } from "react-native"
 
 const theme = extendTheme({
@@ -42,6 +45,9 @@ export default function App() {
 					<stack.Screen name={"ListaCartao"} component={ListaCartao} />
 					<stack.Screen name={"ListaDespesa"} component={ListaDespesa} />
 					<stack.Screen name={"ListaReceita"} component={ListaReceita} />
+					<stack.Screen name={"Saida"} component={Saida} />
+					<stack.Screen name={"Entrada"} component={Entrada} />
+					<stack.Screen name={"OFX"} component={OFX} />
 				</stack.Navigator>
 			</NavigationContainer>
 		</NativeBaseProvider>

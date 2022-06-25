@@ -25,7 +25,7 @@ import {
   Modal,
   FormControl,
   Select,
-  Flex 
+  Flex
 } from "native-base";
 import {
   AntDesign,
@@ -68,7 +68,7 @@ const reviews = [
   },
 ];
 
-const AddToCartButton = (props) => { 
+const AddToCartButton = (props) => {
 
   return (
     <HStack
@@ -131,26 +131,26 @@ export default function (props) {
   let [service, setService] = React.useState("");
   const [tabName, setTabName] = React.useState("Reviews");
   const { colorMode } = useColorMode();
-  const[autenticacao, setAutenticacao] = useState();
+  const [autenticacao, setAutenticacao] = useState();
 
   useEffect(() => {
-    async function loadData(){
+    async function loadData() {
       await SyncStorage.getItem('@user').then((value) => {
         setAutenticacao(JSON.parse(value).autorizacao);
         console.log(JSON.parse(value).autorizacao)
       });
     }
     loadData();
- }, []);
+  }, []);
 
   return (
     <>
-      <StatusBar 
+      <StatusBar
         translucent
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <Box 
+      <Box
         safeAreaTop
         _light={{
           bg: "primary.900",
@@ -200,81 +200,81 @@ export default function (props) {
           <Hidden from="md">
             <HStack space="2" justifyContent="center">
               <HStack space="2" alignItems="center">
-               
 
 
 
 
 
-<Modal isOpen={modalVisible} onClose={() => setModalVisible(false)} avoidKeyboard justifyContent="center" bottom="8" size="xl"
-_backdrop={{
-  _dark: {
-    bg: "violet.900"
-  },
-  bg: "muted.900"
-}}
->
-        <Modal.Content>
-          <Modal.CloseButton />
-          <Modal.Header>Selecione o mes e ano</Modal.Header>
-          <Modal.Body>          
-            <FormControl mt="3">
-              <FormControl.Label>Mes</FormControl.Label>
 
-               
-
-          <Select  onValueChange={itemValue => setService(itemValue)}>
-           
-          <Select.Item label="Janeiro" value="Janeiro" key="1" />
-          <Select.Item label="Fevereiro" value="Fevereiro"key="2"/>
-          <Select.Item label="Março" value="Março" key="3" />
-          <Select.Item label="Abril" value="Abril" key="4" />
-          <Select.Item label="Maio" value="Maio" key="5" />
-          <Select.Item label="Junho" value="Junho" key="6" />
-          <Select.Item label="Julho" value="Julho" key="7" />
-          <Select.Item label="Agosto" value="Agosto" key="8" />
-          <Select.Item label="Setembro" value="Setembro" key="9" />
-          <Select.Item label="Outubro" value="Outubro" key="10" />
-          <Select.Item label="Novembro" value="Novembro" key="11" />
-          <Select.Item label="Desembro" value="Desembro" key="12"/>
-        </Select>
-
-
-              <FormControl.Label>Ano</FormControl.Label>
-
-      <Select  onValueChange={itemValue => setService(itemValue)}>
-      <Select.Item label="2022" value="2022" key={1} />
-      <Select.Item label="2023" value="2023" key={2} />
-      <Select.Item label="2024" value="2024" key={3} />
-      <Select.Item label="2025" value="2025" key={4} />     
-      </Select>
+                <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)} avoidKeyboard justifyContent="center" bottom="8" size="xl"
+                  _backdrop={{
+                    _dark: {
+                      bg: "violet.900"
+                    },
+                    bg: "muted.900"
+                  }}
+                >
+                  <Modal.Content>
+                    <Modal.CloseButton />
+                    <Modal.Header>Selecione o mes e ano</Modal.Header>
+                    <Modal.Body>
+                      <FormControl mt="3">
+                        <FormControl.Label>Mes</FormControl.Label>
 
 
 
-             
-            </FormControl>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button backgroundColor='violet.800' flex="1" onPress={() => { 
-            setModalVisible(false);
-          }}>
-              Processar
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
-      <VStack space={8} alignItems="center" justifyContent={"center"}>
-        <Button backgroundColor='#D1D95' w="300" h='10' onPress={() => {
-        setModalVisible(!modalVisible);
-      }}>
-         Junho 2022
-        </Button>      
-      </VStack>
+                        <Select onValueChange={itemValue => setService(itemValue)}>
+
+                          <Select.Item label="Janeiro" value="Janeiro" key="1" />
+                          <Select.Item label="Fevereiro" value="Fevereiro" key="2" />
+                          <Select.Item label="Março" value="Março" key="3" />
+                          <Select.Item label="Abril" value="Abril" key="4" />
+                          <Select.Item label="Maio" value="Maio" key="5" />
+                          <Select.Item label="Junho" value="Junho" key="6" />
+                          <Select.Item label="Julho" value="Julho" key="7" />
+                          <Select.Item label="Agosto" value="Agosto" key="8" />
+                          <Select.Item label="Setembro" value="Setembro" key="9" />
+                          <Select.Item label="Outubro" value="Outubro" key="10" />
+                          <Select.Item label="Novembro" value="Novembro" key="11" />
+                          <Select.Item label="Desembro" value="Desembro" key="12" />
+                        </Select>
+
+
+                        <FormControl.Label>Ano</FormControl.Label>
+
+                        <Select onValueChange={itemValue => setService(itemValue)}>
+                          <Select.Item label="2022" value="2022" key={1} />
+                          <Select.Item label="2023" value="2023" key={2} />
+                          <Select.Item label="2024" value="2024" key={3} />
+                          <Select.Item label="2025" value="2025" key={4} />
+                        </Select>
 
 
 
 
-               
+                      </FormControl>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button backgroundColor='violet.800' flex="1" onPress={() => {
+                        setModalVisible(false);
+                      }}>
+                        Processar
+                      </Button>
+                    </Modal.Footer>
+                  </Modal.Content>
+                </Modal>
+                <VStack space={8} alignItems="center" justifyContent={"center"}>
+                  <Button backgroundColor='#D1D95' w="300" h='10' onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}>
+                    Junho 2022
+                  </Button>
+                </VStack>
+
+
+
+
+
 
 
 
@@ -512,7 +512,7 @@ _backdrop={{
               >
 
 
-                
+
 
                 <Box
                   p="2"
@@ -550,103 +550,103 @@ _backdrop={{
 
 
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false}  backgroundColor='violet.800'>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} backgroundColor='violet.800'>
 
 
-<Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft:8 ,paddingRight: 20 }} >
-        <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
-          <HStack alignItems="center">
-            <Badge backgroundColor={'rgb(77, 29 ,149)'}  _text={{
-            color: "white"
-          }} variant="solid" rounded="4">
-              Saldo
-            </Badge>
-            <Spacer />
-            <Text fontSize={10} color="coolGray.800">
-              1 month ago
-            </Text>
-          </HStack>
-          <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
-           R$ 1500,22
-          </Text>
-          <Text mt="2" fontSize="sm" color="coolGray.700">
-           Banco do brasil
-          </Text>
-          <Flex>
-            <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
-            Visualizar Lançamentos
-            </Text>
-          </Flex>
-        </Box>
-      </Pressable>
+                    <Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft: 8, paddingRight: 20 }} >
+                      <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
+                        <HStack alignItems="center">
+                          <Badge backgroundColor={'rgb(77, 29 ,149)'} _text={{
+                            color: "white"
+                          }} variant="solid" rounded="4">
+                            Saldo
+                          </Badge>
+                          <Spacer />
+                          <Text fontSize={10} color="coolGray.800">
+                            1 month ago
+                          </Text>
+                        </HStack>
+                        <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
+                          R$ 1500,22
+                        </Text>
+                        <Text mt="2" fontSize="sm" color="coolGray.700">
+                          Banco do brasil
+                        </Text>
+                        <Flex>
+                          <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
+                            Visualizar Lançamentos
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Pressable>
 
 
-      <Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft:8 ,paddingRight: 20 }} >
-        <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
-          <HStack alignItems="center">
-            <Badge colorScheme="darkBlue" _text={{
-            color: "white"
-          }} variant="solid" rounded="4">
-              Saldo
-            </Badge>
-            <Spacer />
-            <Text fontSize={10} color="coolGray.800">
-              1 month ago
-            </Text>
-          </HStack>
-          <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
-           R$ 1500,22
-          </Text>
-          <Text mt="2" fontSize="sm" color="coolGray.700">
-           Banco do brasil
-          </Text>
-          <Flex>
-            <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
-              Visualizar Lançamentos
-            </Text>
-          </Flex>
-        </Box>
-      </Pressable>
-
-
-
-      <Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft:8 ,paddingRight: 20 }} >
-        <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
-          <HStack alignItems="center">
-            <Badge colorScheme="darkBlue" _text={{
-            color: "white"
-          }} variant="solid" rounded="4">
-              Saldo
-            </Badge>
-            <Spacer />
-            <Text fontSize={10} color="coolGray.800">
-              1 month ago
-            </Text>
-          </HStack>
-          <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
-           R$ 1500,22
-          </Text>
-          <Text mt="2" fontSize="sm" color="coolGray.700">
-           Banco do brasil
-          </Text>
-          <Flex>
-            <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
-            Visualizar Lançamentos
-            </Text>
-          </Flex>
-        </Box>
-      </Pressable>
+                    <Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft: 8, paddingRight: 20 }} >
+                      <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
+                        <HStack alignItems="center">
+                          <Badge colorScheme="darkBlue" _text={{
+                            color: "white"
+                          }} variant="solid" rounded="4">
+                            Saldo
+                          </Badge>
+                          <Spacer />
+                          <Text fontSize={10} color="coolGray.800">
+                            1 month ago
+                          </Text>
+                        </HStack>
+                        <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
+                          R$ 1500,22
+                        </Text>
+                        <Text mt="2" fontSize="sm" color="coolGray.700">
+                          Banco do brasil
+                        </Text>
+                        <Flex>
+                          <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
+                            Visualizar Lançamentos
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Pressable>
 
 
 
-      </ScrollView>                
+                    <Pressable onPress={() => console.log("I'm Pressed")} style={{ paddingLeft: 8, paddingRight: 20 }} >
+                      <Box height={190} width={350} marginTop={2.5} maxW="96" borderWidth="1" borderColor="coolGray.300" shadow="3" bg="coolGray.100" p="5" rounded="8">
+                        <HStack alignItems="center">
+                          <Badge colorScheme="darkBlue" _text={{
+                            color: "white"
+                          }} variant="solid" rounded="4">
+                            Saldo
+                          </Badge>
+                          <Spacer />
+                          <Text fontSize={10} color="coolGray.800">
+                            1 month ago
+                          </Text>
+                        </HStack>
+                        <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="xl">
+                          R$ 1500,22
+                        </Text>
+                        <Text mt="2" fontSize="sm" color="coolGray.700">
+                          Banco do brasil
+                        </Text>
+                        <Flex>
+                          <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
+                            Visualizar Lançamentos
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Pressable>
+
+
+
+                  </ScrollView>
                 </Box>
-           
 
 
 
 
-                <ScrollView showsVerticalScrollIndicator={false}  > 
+
+                <ScrollView showsVerticalScrollIndicator={false}  >
                   <Box
                     flex={1}
                     px={{
@@ -667,19 +667,19 @@ _backdrop={{
                             color: "coolGray.50",
                           }}
                         >
-                          Saldo: 
+                          Saldo:
                         </Text>
                         <HStack alignItems="center" space="1">
-                          
+
                           <Text
-                             fontSize="xl"
-                             fontWeight="medium"
-                             _light={{
-                               color: "green.500",
-                             }}
-                             _dark={{
-                               color: "green.500",
-                             }}
+                            fontSize="xl"
+                            fontWeight="medium"
+                            _light={{
+                              color: "green.500",
+                            }}
+                            _dark={{
+                              color: "green.500",
+                            }}
                           >
                             R$ 800,000
                           </Text>
@@ -719,7 +719,7 @@ _backdrop={{
                         R$: 500,00
                       </Text>
 
-                       
+
                       <Text
                         fontSize="sm"
                         fontWeight="medium"
@@ -737,7 +737,7 @@ _backdrop={{
                           color: "rose.500",
                         }}
                       >
-                         R$: 500,00
+                        R$: 500,00
                       </Text>
                     </VStack>
 
@@ -762,7 +762,7 @@ _backdrop={{
                           color: "coolGray.800",
                         }}
                       >
-                       Lançamentos
+                        Lançamentos
                       </Text>
                       <Text
                         fontSize="sm"
@@ -790,91 +790,94 @@ _backdrop={{
                             fontWeight: "medium",
                           },
                         }}
-                      >                      
+                      >
                       </Link>
                     </HStack>
                     <ScrollView
                       horizontal={true}
                       showsHorizontalScrollIndicator={false}
                     >
-                      <Button.Group  space="2" mt={3} alignItems="center">                   
-                              <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            Saida
-                            </Button>
+                      <Button.Group space="2" mt={3} alignItems="center">
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => { props.navigation.navigate('Saida') }}
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          Saida
+                        </Button>
 
-                            <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            Entrada
-                            </Button>
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => { props.navigation.navigate('Entrada') }}
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          Entrada
+                        </Button>
 
-                            <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            OFX
-                            </Button>                     
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => { props.navigation.navigate('OFX') }}
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          OFX
+                        </Button>
                       </Button.Group>
                     </ScrollView>
 
@@ -892,7 +895,7 @@ _backdrop={{
                           color: "coolGray.800",
                         }}
                       >
-                       Cadastros
+                        Cadastros
                       </Text>
                       <Text
                         fontSize="sm"
@@ -920,102 +923,102 @@ _backdrop={{
                             fontWeight: "medium",
                           },
                         }}
-                      >                      
+                      >
                       </Link>
                     </HStack>
                     <ScrollView
                       horizontal={true}
                       showsHorizontalScrollIndicator={false}
                     >
-                      <Button.Group  space="2" mt={3} alignItems="center">                 
-                             
-                        
-                            <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                            onPress={ () => { props.navigation.navigate('ListaDespesa') }}
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            Despesa
-                            </Button>
+                      <Button.Group space="2" mt={3} alignItems="center">
 
-                            <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                           onPress={() => {
+
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => { props.navigation.navigate('ListaDespesa') }}
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          Despesa
+                        </Button>
+
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => {
                             props.navigation.navigate("ListaReceita");
                           }}
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            Receita
-                            </Button>
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          Receita
+                        </Button>
 
-                            <Button backgroundColor={'rgb(77, 29 ,149)'} 
-                            onPress={ () => {
-                              props.navigation.navigate('ListaCartao')
-                            }}
-                              py="4"
-                              px="9"
-                              borderRadius="4"
-                              variant="subtle"
-                              _text={{
-                                _dark: {
-                                  color: "coolGray.50",
-                                },
-                                _light: {
-                                  color: "coolGray.100",
-                                },
-                                fontWeight: "normal",
-                              }} //@ts-ignore
-                              _light={{
-                                colorScheme: "primary",
-                              }}
-                              _dark={{
-                                bg: "coolGray.900",
-                                //@ts-ignore
-                                colorScheme: "dark",
-                              }}
-                            >
-                            Cartões
-                            </Button>
-                        
-                    
+                        <Button backgroundColor={'rgb(77, 29 ,149)'}
+                          onPress={() => {
+                            props.navigation.navigate('ListaCartao')
+                          }}
+                          py="4"
+                          px="9"
+                          borderRadius="4"
+                          variant="subtle"
+                          _text={{
+                            _dark: {
+                              color: "coolGray.50",
+                            },
+                            _light: {
+                              color: "coolGray.100",
+                            },
+                            fontWeight: "normal",
+                          }} //@ts-ignore
+                          _light={{
+                            colorScheme: "primary",
+                          }}
+                          _dark={{
+                            bg: "coolGray.900",
+                            //@ts-ignore
+                            colorScheme: "dark",
+                          }}
+                        >
+                          Cartões
+                        </Button>
+
+
                       </Button.Group>
                     </ScrollView>
 
@@ -1098,7 +1101,7 @@ _backdrop={{
                     </HStack>
 
 
-                  {  /*  
+                    {  /*  
 
                     {tabName === "Description" ? (
                       <Text
@@ -1188,7 +1191,7 @@ _backdrop={{
                     )}
                     <AddToCartButton base="flex" md="none" />
                     */ }
-                  </Box>  
+                  </Box>
                 </ScrollView>
               </Stack>
             </VStack>
