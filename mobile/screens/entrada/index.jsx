@@ -19,6 +19,42 @@ export function EntradaForm({ props }) {
   const [conta, setConta] = useState([]);
   const [load, setLoad] = useState(true)
   const navigation = useNavigation();
+  const [contaSelecionada, setContaSelecionada] = useState("");
+  const [receitaSelecionada, setReceitaSelecionada] = useState("");
+
+
+  async function lancamentoEntrada() {
+    const data = {
+      trnamt: valor,
+      id_receita: receitaSelecionada,
+      id_conta: contaSelecionada,
+      descricao: descricao,
+    };
+
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/lancamento/LancEntrada",
+      headers: {
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+      data: data,
+    };
+    console.log(config)
+    axios(config)
+      .then((resposta) => {
+        if (resposta.status == 201) {
+          navigation.navigate("ProductScreen");
+        }
+      })
+      .catch((err) => {
+        setValidacao(err.response.data.error);
+      });
+  }
 
 
   function carregaReceita() {
@@ -167,13 +203,17 @@ export function EntradaForm({ props }) {
                 />
 
 
-                <Select placeholder="Selecione uma Receita" >
+                <Select placeholder="Selecione uma Receita" 
+                  onValueChange={setReceitaSelecionada}
+                >
                   { receita.map((v) =>( 
                      <Select.Item label={v.receita} value={v.id} key={v.id}/>        
                  ) )}                    
                 </Select>
 
-                <Select placeholder="Selecione uma conta" >
+                <Select placeholder="Selecione uma conta" 
+                  onValueChange={setContaSelecionada}
+                >
                   { conta.map((v) =>( 
                      <Select.Item label={v.nome} value={v.id} key={v.id}/>        
                  ) )}                    
@@ -237,7 +277,7 @@ export function EntradaForm({ props }) {
                           Cancelar
                         </Button>
                         <Button onPress={() => {
-                          salvarConta()
+                          lancamentoEntrada()
                           setShowModal(false);
                         }}>
                           Salvar
@@ -317,10 +357,11 @@ export default function Receita(props) {
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign='center'>
                   Lançamento de entrada
                 </Text>
                 <Text
+                  textAlign='center'
                   fontSize="md"
                   fontWeight="normal"
                   _dark={{

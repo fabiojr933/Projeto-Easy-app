@@ -16,10 +16,11 @@ const Despesa = new despesaController();
 const Receita = new receitaController();
 const Conta = new contaController();
 
-route.get('/lancamento/listaAll', Middleware.Autorizacao, Lancamento.listaAll);
-route.get('/lancamento/lista/:id', Middleware.Autorizacao, Lancamento.listaId);
-route.post('/lancamento/salvar', Middleware.Autorizacao, Lancamento.salvar);
-route.delete('/lancamento/excluir', Middleware.Autorizacao, Lancamento.excluir);
+route.post('/lancamento/LancSaida', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancSaida);
+route.delete('/lancamento/LancSaidaExcluir/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancSaidaExcluir);
+route.post('/lancamento/LancEntrada', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntrada);
+route.delete('/lancamento/LancEntradaExcluir/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntradaExcluir);
+route.post('/lancamento/lancOFX', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.lancOFX);
 
 route.post('/usuario/salvar', Usuario.salvar);
 route.put('/usuario/alterar/:id', Middleware.Autorizacao, Usuario.alterar);
@@ -40,7 +41,7 @@ route.put('/receita/desativar/:id', Middleware.Autorizacao, Autorizacao.Autoriza
 route.get('/conta/listaAll', Middleware.Autorizacao, Autorizacao.Autorizacao, Conta.listaAll);
 route.post('/conta/salvar', Middleware.Autorizacao, Autorizacao.Autorizacao, Conta.salvar);
 route.put('/conta/desativar/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Conta.desativar);
-    
+
 
 
 

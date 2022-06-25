@@ -2,7 +2,7 @@
 exports.up = (knex) => {
     return knex.schema.createTable('lancamento', (table) => {
         table.increments('id').primary();
-        table.string('DESCRICAO');
+        table.string('descricao');
         table.integer('id_usuario').references('id').inTable('usuario');
         table.integer('id_despesa').references('id').inTable('despesa');
         table.integer('id_receita').references('id').inTable('receita');
@@ -16,6 +16,7 @@ exports.up = (knex) => {
         table.string('ofx_checknum');    
         table.varchar('ofx_memo');    
         table.decimal('OFX_LEDGEofx_ledgerbalRBAL', 14, 2);   
+        table.string('tipo');
     });
 };
 

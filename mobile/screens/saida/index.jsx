@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button, HStack, VStack, Text, Image, useColorModeValue, IconButton, Icon, Pressable, Center, Hidden, StatusBar, Stack, Select, Modal, Box, } from "native-base";
+import {
+  Button,
+  HStack,
+  VStack,
+  Text,
+  Image,
+  useColorModeValue,
+  IconButton,
+  Icon,
+  Pressable,
+  Center,
+  Hidden,
+  StatusBar,
+  Stack,
+  Select,
+  Modal,
+  Box,
+} from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -9,21 +26,52 @@ import { useNavigation } from "@react-navigation/native";
 import SyncStorage from "@react-native-async-storage/async-storage";
 
 export function SaidaForm({ props }) {
-
   const [showModal, setShowModal] = useState(false);
   const [valor, setValor] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [validacao, setValidacao] = useState('');
+  const [validacao, setValidacao] = useState("");
   const [autenticacao, setAutenticacao] = useState("");
   const [despesa, setDespesa] = useState([]);
   const [conta, setConta] = useState([]);
-  const [load, setLoad] = useState(true)
+  const [load, setLoad] = useState(true);
   const navigation = useNavigation();
+  const [contaSelecionada, setContaSelecionada] = useState("");
+  const [despesaSelecionada, setDespesaSelecionada] = useState("");
 
+  async function lancamentoSaida() {
+    const data = {
+      trnamt: valor,
+      id_despesa: despesaSelecionada,
+      id_conta: contaSelecionada,
+      descricao: descricao,
+    };
 
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/lancamento/LancSaida",
+      headers: {
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+      data: data,
+    };
+    axios(config)
+      .then((resposta) => {
+        if (resposta.status == 201) {
+          navigation.navigate("ProductScreen");
+        }
+      })
+      .catch((err) => {
+        setValidacao(err.response.data.error);
+      });
+  }
   function carregaDespesas() {
     var config = {};
-    navigation.addListener('focus', () => setLoad(!load))
+    navigation.addListener("focus", () => setLoad(!load));
     async function despesa() {
       await SyncStorage.getItem("@user").then((value) => {
         setAutenticacao(JSON.parse(value).autorizacao);
@@ -36,18 +84,16 @@ export function SaidaForm({ props }) {
           },
         };
       });
-      axios(config)
-        .then((resposta) => {
-          setDespesa(resposta.data);
-        });
+      axios(config).then((resposta) => {
+        setDespesa(resposta.data);
+      });
     }
     despesa();
   }
 
-
   function carregaConta() {
     var config = {};
-    navigation.addListener('focus', () => setLoad(!load))
+    navigation.addListener("focus", () => setLoad(!load));
     async function conta() {
       await SyncStorage.getItem("@user").then((value) => {
         setAutenticacao(JSON.parse(value).autorizacao);
@@ -60,12 +106,9 @@ export function SaidaForm({ props }) {
           },
         };
       });
-      console.log(config)
-      axios(config)
-        .then((resposta) => {
-          console.log(resposta.data)
-          setConta(resposta.data);
-        });
+      axios(config).then((resposta) => {
+        setConta(resposta.data);
+      });
     }
     conta();
   }
@@ -74,7 +117,6 @@ export function SaidaForm({ props }) {
     carregaDespesas();
     carregaConta();
   }, [load, navigation]);
-
 
   /*
     async function salvarConta() {
@@ -108,15 +150,23 @@ export function SaidaForm({ props }) {
     }
   */
   return (
-    <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1, }} style={{ flex: 1, }} >
-      <VStack flex="1" px="6" py="9"
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      style={{ flex: 1 }}
+    >
+      <VStack
+        flex="1"
+        px="6"
+        py="9"
         _light={{
           bg: "white",
         }}
         _dark={{
           bg: "coolGray.800",
         }}
-        space="3" justifyContent="space-between" borderTopRightRadius={{
+        space="3"
+        justifyContent="space-between"
+        borderTopRightRadius={{
           base: "2xl",
           md: "xl",
         }}
@@ -141,8 +191,9 @@ export function SaidaForm({ props }) {
                 space={{
                   base: "7",
                   md: "4",
-                }}>
-                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+                }}
+              >
+                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}>
                   {validacao}
                 </Text>
 
@@ -152,7 +203,7 @@ export function SaidaForm({ props }) {
                   labelColor="#9ca3af"
                   labelBGColor={useColorModeValue("#fff", "#1f2937")}
                   borderRadius="4"
-                  keyboardType={"numeric"}
+                  keyboardType={"decimal-pad"}
                   defaultValue={valor}
                   onChangeText={(valor) => setValor(valor)}
                   _text={{
@@ -167,19 +218,23 @@ export function SaidaForm({ props }) {
                   }}
                 />
 
-
-                <Select placeholder="Selecione uma Despesa" >
-                  { despesa.map((v) =>( 
-                     <Select.Item label={v.despesa} value={v.id} key={v.id}/>        
-                 ) )}                    
+                <Select
+                  placeholder="Selecione uma Despesa"
+                  onValueChange={setDespesaSelecionada}
+                >
+                  {despesa.map((v) => (
+                    <Select.Item label={v.despesa} value={v.id} key={v.id} />
+                  ))}
                 </Select>
 
-                <Select placeholder="Selecione uma conta" >
-                  { conta.map((v) =>( 
-                     <Select.Item label={v.nome} value={v.id} key={v.id}/>        
-                 ) )}                    
+                <Select
+                  placeholder="Selecione uma conta"
+                  onValueChange={setContaSelecionada}
+                >
+                  {conta.map((v) => (
+                    <Select.Item label={v.nome} value={v.id} key={v.id} />
+                  ))}
                 </Select>
-
 
                 <FloatingLabelInput
                   isRequired
@@ -200,7 +255,6 @@ export function SaidaForm({ props }) {
                     borderColor: "coolGray.300",
                   }}
                 />
-
               </VStack>
 
               <Center>
@@ -217,14 +271,21 @@ export function SaidaForm({ props }) {
                   _dark={{
                     bg: "primary.700",
                   }}
-                  onPress={() => setShowModal(true)}>Salvar</Button>
-                <Modal isOpen={showModal} onClose={() => setShowModal(false)} _backdrop={{
-                  _dark: {
-                    bg: "coolGray.800"
-                  },
-                  bg: "muted.900"
-                }}>
-                  <Modal.Content maxWidth="350" maxH="260">
+                  onPress={() => setShowModal(true)}
+                >
+                  Salvar
+                </Button>
+                <Modal
+                  isOpen={showModal}
+                  onClose={() => setShowModal(false)}
+                  _backdrop={{
+                    _dark: {
+                      bg: "coolGray.800",
+                    },
+                    bg: "muted.900",
+                  }}
+                >
+                  <Modal.Content maxWidth="350" maxH="260"> 
                     <Modal.CloseButton />
                     <Modal.Header>Atenção!</Modal.Header>
                     <Modal.Body>
@@ -232,15 +293,21 @@ export function SaidaForm({ props }) {
                     </Modal.Body>
                     <Modal.Footer>
                       <Button.Group space={2}>
-                        <Button variant="ghost" colorScheme="blueGray" onPress={() => {
-                          setShowModal(false);
-                        }}>
+                        <Button
+                          variant="ghost"
+                          colorScheme="blueGray"
+                          onPress={() => {
+                            setShowModal(false);
+                          }}
+                        >
                           Cancelar
                         </Button>
-                        <Button onPress={() => {
-                          salvarConta()
-                          setShowModal(false);
-                        }}>
+                        <Button
+                          onPress={() => {
+                            lancamentoSaida();
+                            setShowModal(false);
+                          }}
+                        >
                           Salvar
                         </Button>
                       </Button.Group>
@@ -248,7 +315,6 @@ export function SaidaForm({ props }) {
                   </Modal.Content>
                 </Modal>
               </Center>
-
             </VStack>
           </VStack>
         </VStack>
@@ -303,7 +369,9 @@ export default function Saida(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  onPress={() => {
+                    props.navigation.navigate("ProductScreen");
+                  }}
                   icon={
                     <Icon
                       size="6"
@@ -318,10 +386,11 @@ export default function Saida(props) {
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign='center'>
                   Lançamento de saida
                 </Text>
                 <Text
+                  textAlign='center'
                   fontSize="md"
                   fontWeight="normal"
                   _dark={{

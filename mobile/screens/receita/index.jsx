@@ -199,10 +199,11 @@ export default function SignIn(props) {
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50">                  
+                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign='center'>                  
                 Cadastro de Receita
                 </Text>
                 <Text
+                  textAlign='center'
                   fontSize="md"
                   fontWeight="normal"
                   _dark={{
