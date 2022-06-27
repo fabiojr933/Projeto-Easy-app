@@ -16,4 +16,4 @@ npm i -g knex
 
 criando seeds
 knex seed:make nome
-knex seed:make --env test
+knex seed:run --env test
