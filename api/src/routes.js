@@ -1,5 +1,7 @@
 const express = require('express');
 const route = express.Router();
+const multer = require('multer');
+const multerConfig = require('./middleware/multerConfig');
 const lancamentoController = require('./controller/LancamentoController');
 const Middleware = require('./middleware/middleware');
 const Autorizacao = require('./middleware/autorizacao');
@@ -20,7 +22,7 @@ route.post('/lancamento/LancSaida', Middleware.Autorizacao, Autorizacao.Autoriza
 route.delete('/lancamento/LancSaidaExcluir/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancSaidaExcluir);
 route.post('/lancamento/LancEntrada', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntrada);
 route.delete('/lancamento/LancEntradaExcluir/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntradaExcluir);
-route.post('/lancamento/lancOFX', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.lancOFX);
+route.post('/lancamento/lancOFX', Middleware.Autorizacao, Autorizacao.Autorizacao, multer(multerConfig).single('file'), Lancamento.lancOFX);
 
 route.post('/usuario/salvar', Usuario.salvar);
 route.put('/usuario/alterar/:id', Middleware.Autorizacao, Usuario.alterar);

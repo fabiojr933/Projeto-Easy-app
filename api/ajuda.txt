@@ -10,3 +10,10 @@ deletando a tabela
 
 knex globalmente
 npm i -g knex
+
+
+
+
+criando seeds
+knex seed:make nome
+knex seed:make --env test

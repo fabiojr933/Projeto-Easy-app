@@ -1,5 +1,5 @@
 const Lancamento = require('../models/lancamentoModel');
-
+const multer = require("multer");
 class LancamentoController {
 
     async LancSaida(req, res) {
@@ -78,12 +78,18 @@ class LancamentoController {
     }
 
 
-    async lancOFX(req, res){
-        try {
-            res.status(200).send('pronto');
-        } catch (error) {
-            
+    async lancOFX(req, res){     
+        try {              
+            const arquivo = req.file.path;
+            const id_usuario = req.id_usuario;
+            const lancamento = new Lancamento();
+            const dados = await lancamento.lancOFX(id_usuario, arquivo);              
+            return res.status(200).json(dados);
+        } catch (error) {         
+            console.log(error) 
+            return res.status(400).json({ error: 'Arquivo com formato invalido' });    
         }
+        
     }
 
 }

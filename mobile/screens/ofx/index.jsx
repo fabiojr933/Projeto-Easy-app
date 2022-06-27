@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button, HStack, VStack, Text, Image, useColorModeValue, IconButton, Icon, Pressable, Center, Hidden, StatusBar, Stack, Select, Modal, Box, } from "native-base";
+import {
+  Button,
+  HStack,
+  VStack,
+  Text,
+  Image,
+  useColorModeValue,
+  IconButton,
+  Icon,
+  Pressable,
+  Center,
+  Hidden,
+  StatusBar,
+  Stack,
+  Select,
+  Modal,
+  Box,
+} from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -7,73 +24,87 @@ import configuracao from "../../services/api";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import SyncStorage from "@react-native-async-storage/async-storage";
-import * as DocumentPicker from 'expo-document-picker';
-
+import * as DocumentPicker from "expo-document-picker";
 
 export function OFXForm({ props }) {
-
   const [showModal, setShowModal] = useState(false);
   const [valor, setValor] = useState("");
   const [name, setName] = useState("");
-  const [validacao, setValidacao] = useState(''); 
-  const [load, setLoad] = useState(true)
+  const [validacao, setValidacao] = useState("");
+  const [caminho, setCaminho] = useState("");
+  //const [listaDados, setListaDados] = useState([]);
+  const [load, setLoad] = useState(true);
   const navigation = useNavigation();
 
-
   async function openDocumentFile() {
-
     try {
       const doc = await DocumentPicker.getDocumentAsync({
-        type: 'image/*'
+        type: "*/*",
       });
-      console.log(doc);
-      setName(doc.name)
+      setCaminho(doc);
+      setName(doc.name);
+      // lancamentoOFX(doc);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   }
 
-  /*
-    async function salvarConta() {
-      var token = "";
-      await SyncStorage.getItem("@user").then((value) => {
-        token = JSON.parse(value).autorizacao;
-      });
-      const data = { 'banco': banco, 'conta': conta, 'nome': nomeBanco };
-      var config = {
-        method: "POST",
-        url: configuracao.url_base_api + "/conta/salvar",
-        headers: {
-          Authorization: "Bearer " + configuracao.token,
-          autorizacao: token,
-        },
-        data: data,
-      };
-      console.log(data)
-      console.log(config)
-  
-      axios(config).then((resposta) => {
-        if (resposta.status == 201 || resposta.status == 200) {
-          navigation.navigate('ListaCartao');
+  async function lancamentoOFX() {
+    var token = "";
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });
+    var formData = new FormData();
+    formData.append("file", {
+      uri: caminho.uri,
+      type: caminho.mimeType,
+      name: caminho.name,
+    });
+
+    var config = {
+      method: "POST",
+      url: configuracao.url_base_api + "/lancamento/LancOFX",
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + configuracao.token,
+        autorizacao: token,
+      },
+    };
+    console.log(formData);
+    console.log(config);
+
+    axios(config)
+      .then((resposta) => {
+        if (resposta.status == 200) {
+         // console.log(resposta.data);
+          navigation.navigate("ListaLancamento", { dados: resposta.data });
         }
-        if (resposta.status == 400) {
-          setValidacao(error.response.data.error)
-        }
-      }).catch((error) => {
-        setValidacao(error.response.data.error);
       })
-    }
-  */
+      .catch((error) => {
+        console.log(error);
+        setValidacao(error.response.data.error);
+      });
+  }
+
   return (
-    <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1, }} style={{ flex: 1, }} >
-      <VStack flex="1" px="6" py="9"
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      style={{ flex: 1 }}
+    >
+      <VStack
+        flex="1"
+        px="6"
+        py="9"
         _light={{
           bg: "white",
         }}
         _dark={{
           bg: "coolGray.800",
         }}
-        space="3" justifyContent="space-between" borderTopRightRadius={{
+        space="3"
+        justifyContent="space-between"
+        borderTopRightRadius={{
           base: "2xl",
           md: "xl",
         }}
@@ -98,12 +129,14 @@ export function OFXForm({ props }) {
                 space={{
                   base: "7",
                   md: "4",
-                }}>
-                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}  >
+                }}
+              >
+                <Text fontSize="sm" color="#d61212" pl="2" textAlign={"center"}>
                   {validacao}
                 </Text>
 
                 <Button
+                  // onPressOut={openDocumentFile}
                   onPress={openDocumentFile}
                   mt="5"
                   size="md"
@@ -117,12 +150,14 @@ export function OFXForm({ props }) {
                   _dark={{
                     bg: "primary.700",
                   }}
-                >Importar arquivo OFX</Button>
+                >
+                  Importar arquivo OFX
+                </Button>
               </VStack>
 
               <Text color="coolGray.500" fontSize="sm" textAlign="center">
-                  {name}
-                </Text>
+                {name}
+              </Text>
               <Center>
                 <Button
                   mt="155"
@@ -137,13 +172,20 @@ export function OFXForm({ props }) {
                   _dark={{
                     bg: "primary.700",
                   }}
-                  onPress={() => setShowModal(true)}>Processar</Button>
-                <Modal isOpen={showModal} onClose={() => setShowModal(false)} _backdrop={{
-                  _dark: {
-                    bg: "coolGray.800"
-                  },
-                  bg: "muted.900"
-                }}>
+                  onPress={() => setShowModal(true)}
+                >
+                  Processar
+                </Button>
+                <Modal
+                  isOpen={showModal}
+                  onClose={() => setShowModal(false)}
+                  _backdrop={{
+                    _dark: {
+                      bg: "coolGray.800",
+                    },
+                    bg: "muted.900",
+                  }}
+                >
                   <Modal.Content maxWidth="350" maxH="260">
                     <Modal.CloseButton />
                     <Modal.Header>Atenção!</Modal.Header>
@@ -152,15 +194,20 @@ export function OFXForm({ props }) {
                     </Modal.Body>
                     <Modal.Footer>
                       <Button.Group space={2}>
-                        <Button variant="ghost" colorScheme="blueGray" onPress={() => {
-                          setShowModal(false);
-                        }}>
+                        <Button
+                          variant="ghost"
+                          colorScheme="blueGray"
+                          onPress={() => {
+                            setShowModal(false);
+                          }}
+                        >
                           Cancelar
                         </Button>
-                        <Button onPress={() => {
-                        
-                          setShowModal(false);
-                        }}>
+                        <Button
+                          onPress={() => {
+                            lancamentoOFX(), setShowModal(false);
+                          }}
+                        >
                           Processar
                         </Button>
                       </Button.Group>
@@ -168,7 +215,6 @@ export function OFXForm({ props }) {
                   </Modal.Content>
                 </Modal>
               </Center>
-
             </VStack>
           </VStack>
         </VStack>
@@ -223,7 +269,9 @@ export default function ofx(props) {
                 <IconButton
                   variant="unstyled"
                   pl="0"
-                  onPress={() => { props.navigation.navigate('ProductScreen') }}
+                  onPress={() => {
+                    props.navigation.navigate("ProductScreen");
+                  }}
                   icon={
                     <Icon
                       size="6"
@@ -238,11 +286,16 @@ export default function ofx(props) {
                 </Text>
               </HStack>
               <VStack space="2">
-                <Text fontSize="3xl" fontWeight="bold" color="coolGray.50" textAlign="center">
+                <Text
+                  fontSize="3xl"
+                  fontWeight="bold"
+                  color="coolGray.50"
+                  textAlign="center"
+                >
                   Lançamento via arquivo OFX
                 </Text>
                 <Text
-                textAlign="center"
+                  textAlign="center"
                   fontSize="md"
                   fontWeight="normal"
                   _dark={{

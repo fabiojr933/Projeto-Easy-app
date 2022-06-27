@@ -1,5 +1,8 @@
 const knex = require('../database/database');
 const Validacao = require('../middleware/validacao');
+const ofx = require('ofx-convertjs');
+const fs = require('fs');
+const path = require('path');
 
 class lancamentoModel {
     async LancSaida(dados) {
@@ -50,12 +53,33 @@ class lancamentoModel {
     }
 
 
-    async lancOFX(arquivo){
-        try {
-            res.status(200).send('pronto');
-        } catch (error) {
-            
+    async lancOFX(id_usuario, arquivo) {
+        var nomeBanco = '';
+        if (!id_usuario) throw new Validacao('O usuario é obrigadorio informar');
+        if (!arquivo) throw new Validacao('É obrigado enviar o arquivo');
+
+        const file = fs.readFileSync(path.resolve(__dirname, '..', '..', 'tmp', 'uploads', arquivo), 'utf8');
+        const dados = ofx.toJson(file);
+        //  console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST);
+        var numeroConta = Number(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.ACCTID.replace('-', ''));
+        var numeroBanco = parseInt(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.BANKID);
+        await knex('banco').count('id as id').where({ bankid: numeroBanco }).select('name').groupBy('name').then((resposta) => {
+            nomeBanco = resposta[0].name.trim();
+        });
+        await knex('conta').count('id as id_conta').where({ conta: numeroConta }).then((resposta) => {
+            console.log(resposta[0].id_conta);
+            if (resposta[0].id_conta == 0 || resposta[0].id_conta == undefined) {
+                knex('conta').insert({ 'nome': nomeBanco, 'conta': numeroConta, 'banco': numeroBanco, 'status': 'Ativo', 'id_usuario': id_usuario }).then((resposta) => {
+                })
+            }
+        });
+        const data = {
+            'nomeBanco': nomeBanco,
+            'numeroBanco': numeroBanco,
+            'numeroConta': numeroConta,
+            ...dados.OFX.BANKMSGSRSV1
         }
+        return data;
     }
 
 }
