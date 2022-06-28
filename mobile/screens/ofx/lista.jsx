@@ -27,6 +27,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import SyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView, TextInput } from 'react-native';
+import moment from 'moment';
 
 
 export function OFXForm({ props }) {
@@ -39,9 +40,24 @@ export function OFXForm({ props }) {
   const [load, setLoad] = useState(true);
   const [listaDespesa, setListaDespesa] = useState([]);
   const [listaReceita, setListaReceita] = useState([]);
+  const [idReceitaDespesa, setIdReceitaDespesa] = useState([]);
   const navigation = useNavigation();
 
 
+  function updateOFX() {
+    console.log(idReceitaDespesa);
+  }
+
+  function lancarOFX() {
+    listaDados.map((v) => {
+      console.log(v.DTPOSTED.trim())
+       var ano = (v.DTPOSTED.substring(0 ,4));
+       var mes = (v.DTPOSTED.substring(4 ,6));
+       var dia = (v.DTPOSTED.substring(6 ,8));
+        console.log(dia + ' - ' + mes + ' - '  + ano)
+    });
+   // console.log(.substring(0 ,3))
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -94,12 +110,14 @@ export function OFXForm({ props }) {
   }, []);
 
 
-  
 
-  function ReceitaDespesa(v) {
+  function ReceitaDespesa(v, FITID, CHECKNUM) {
+
+
     if (v == 'DEBIT') {
       return (
-        <Select placeholder="Selecione uma Despesa">
+        <Select placeholder="Selecione uma Despesa"
+          onValueChange={(value) => { setIdReceitaDespesa([...idReceitaDespesa, { 'id_despesa': value, 'id': FITID, 'protocolo': CHECKNUM }]) }}>
           {listaDespesa.map((d) => (
             <Select.Item label={d.despesa} value={d.id} key={d.id} />
           ))}
@@ -107,7 +125,8 @@ export function OFXForm({ props }) {
       )
     } else {
       return (
-        <Select placeholder="Selecione uma Receita">
+        <Select placeholder="Selecione uma Receita"
+          onValueChange={(value) => { setIdReceitaDespesa([...idReceitaDespesa, { 'id_receita': value, 'id': FITID, 'protocolo': CHECKNUM }]) }}>
           {listaReceita.map((d) => (
             <Select.Item label={d.receita} value={d.id} key={d.id} />
           ))}
@@ -175,7 +194,7 @@ export function OFXForm({ props }) {
                   }}
                 >
                   <Button
-                    // onPressOut={openDocumentFile}
+                    onPress={lancarOFX}
 
                     mt="5"
                     size="md"
@@ -196,73 +215,73 @@ export function OFXForm({ props }) {
               </VStack>
             </VStack>
 
-  
-              {listaDados.map((v, k) => (
 
-                <>
-                  <Divider bg="primary.700" thickness="2" mx="2" />
-                  <HStack >
+            {listaDados.map((v, k) => (
 
-                    <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
-                    <TextInput fontSize={10} variant="unstyled" placeholder="Unstyled" color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false} >
-                      {v.DTPOSTED}
-                    </TextInput >
-                    <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
-                    <TextInput fontSize={10} color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false}>
-                      Id: {v.FITID}
-                    </TextInput>
-                    <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
-                    <TextInput fontSize={10} color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false}>
-                      Protocolo {v.CHECKNUM}
-                    </TextInput>
-                  </HStack>
-                  <HStack space={2} justifyContent="center">
+              <>
+                <Divider bg="primary.700" thickness="2" mx="2" />
+                <HStack >
 
-                    {(() => {
-                      if (v.TRNTYPE == 'DEBIT') {
-                        return (
-                          <TextInput color='#be1c16' fontSize={16} mt="1" fontWeight="medium" textAlign='center' editable={false} selectTextOnFocus={false}>
-                            {v.TRNTYPE}
-                          </TextInput>
-                        )
-                      } else {
-                        return (
-                          <TextInput color='#050f9c' fontSize={16} mt="1" fontWeight="medium" textAlign='center' editable={false} selectTextOnFocus={false}>
-                            {v.TRNTYPE}
-                          </TextInput>
-                        )
-                      }
-                    })()}
-
-                    {(() => {
-                      if (v.TRNTYPE == 'DEBIT') {
-                        return (
-                          <TextInput color='#be1c16' mt="1" fontWeight="medium" fontSize={16} textAlign='center' editable={false} selectTextOnFocus={false}>
-                            R$ {v.TRNAMT}
-                          </TextInput>
-                        )
-                      } else {
-                        return (
-                          <TextInput color='#050f9c' mt="1" fontWeight="medium" fontSize={16} textAlign='center' editable={false} selectTextOnFocus={false}>
-                            R$ {v.TRNAMT}
-                          </TextInput>
-                        )
-                      }
-                    })()}
-
-                  </HStack>
-                  <TextInput mt="2" fontSize={12} color="gray.800" textAlign='center' editable={false} selectTextOnFocus={false}>
-                    {nomeBanco}
+                  <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
+                  <TextInput fontSize={10} variant="unstyled" placeholder="Unstyled" color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false} >
+                  { (v.DTPOSTED.substring(6 ,8)) } { (v.DTPOSTED.substring(4 ,6)) } { (v.DTPOSTED.substring(0 ,4)) }
+                  </TextInput >
+                  <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
+                  <TextInput fontSize={10} color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false}>
+                    Id: {v.FITID}
                   </TextInput>
-                  <Flex>
-                    <TextInput mt="2" fontSize={12} fontWeight="medium" color="gray.800" editable={false} selectTextOnFocus={false}>
-                      {v.MEMO}
-                    </TextInput>
-                  </Flex>
-                  {ReceitaDespesa(v.TRNTYPE)}
-                </>
-              ))}
-             
+                  <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
+                  <TextInput fontSize={10} color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false}>
+                    Protocolo {v.CHECKNUM}
+                  </TextInput>
+                </HStack>
+                <HStack space={2} justifyContent="center">
+
+                  {(() => {
+                    if (v.TRNTYPE == 'DEBIT') {
+                      return (
+                        <TextInput color='#be1c16' fontSize={16} mt="1" fontWeight="medium" textAlign='center' editable={false} selectTextOnFocus={false}>
+                          {v.TRNTYPE}
+                        </TextInput>
+                      )
+                    } else {
+                      return (
+                        <TextInput color='#050f9c' fontSize={16} mt="1" fontWeight="medium" textAlign='center' editable={false} selectTextOnFocus={false}>
+                          {v.TRNTYPE}
+                        </TextInput>
+                      )
+                    }
+                  })()}
+
+                  {(() => {
+                    if (v.TRNTYPE == 'DEBIT') {
+                      return (
+                        <TextInput color='#be1c16' mt="1" fontWeight="medium" fontSize={16} textAlign='center' editable={false} selectTextOnFocus={false}>
+                          R$ {v.TRNAMT}
+                        </TextInput>
+                      )
+                    } else {
+                      return (
+                        <TextInput color='#050f9c' mt="1" fontWeight="medium" fontSize={16} textAlign='center' editable={false} selectTextOnFocus={false}>
+                          R$ {v.TRNAMT}
+                        </TextInput>
+                      )
+                    }
+                  })()}
+
+                </HStack>
+                <TextInput mt="2" fontSize={12} color="gray.800" textAlign='center' editable={false} selectTextOnFocus={false}>
+                  {nomeBanco}
+                </TextInput>
+                <Flex>
+                  <TextInput mt="2" fontSize={12} fontWeight="medium" color="gray.800" editable={false} selectTextOnFocus={false}>
+                    {v.MEMO}
+                  </TextInput>
+                </Flex>
+                {ReceitaDespesa(v.TRNTYPE, v.FITID, v.CHECKNUM)}
+              </>
+            ))}
+
           </VStack>
         </VStack>
       </KeyboardAwareScrollView>
