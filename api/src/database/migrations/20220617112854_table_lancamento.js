@@ -15,8 +15,10 @@ exports.up = (knex) => {
         table.string('ofx_fitid');    
         table.string('ofx_checknum');    
         table.varchar('ofx_memo');    
-        table.decimal('OFX_LEDGEofx_ledgerbalRBAL', 14, 2);   
         table.string('tipo');
+        table.string('dia');
+        table.string('mes');
+        table.string('ano');
     });
 };
 

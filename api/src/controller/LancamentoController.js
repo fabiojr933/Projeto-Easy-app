@@ -3,7 +3,7 @@ const multer = require("multer");
 class LancamentoController {
 
     async LancSaida(req, res) {
-        try {        
+        try {
             const id_usuario = req.id_usuario;
             const valor = parseFloat(req.body.trnamt); // valor
             const id_despesa = Number(req.body.id_despesa);
@@ -33,7 +33,7 @@ class LancamentoController {
             console.log(id, id_usuario)
             const lancamento = new Lancamento();
             await lancamento.LancSaidaExcluir(id, id_usuario);
-            res.status(200).json({'id': id});
+            res.status(200).json({ 'id': id });
         } catch (error) {
             return res.status(400).json({ error: error.error });
         }
@@ -41,7 +41,7 @@ class LancamentoController {
 
 
     async LancEntrada(req, res) {
-        try {        
+        try {
             const id_usuario = req.id_usuario;
             const valor = parseFloat(req.body.trnamt); // valor
             const id_receita = Number(req.body.id_receita);
@@ -71,25 +71,54 @@ class LancamentoController {
             console.log(id, id_usuario)
             const lancamento = new Lancamento();
             await lancamento.LancEntradaExcluir(id, id_usuario);
-            res.status(200).json({'id': id});
+            res.status(200).json({ 'id': id });
         } catch (error) {
             return res.status(400).json({ error: error.error });
         }
     }
 
 
-    async lancOFX(req, res){     
-        try {              
+    async lancOFX(req, res) {
+        try {
             const arquivo = req.file.path;
             const id_usuario = req.id_usuario;
             const lancamento = new Lancamento();
-            const dados = await lancamento.lancOFX(id_usuario, arquivo);              
+            const dados = await lancamento.lancOFX(id_usuario, arquivo);
             return res.status(200).json(dados);
-        } catch (error) {         
-            console.log(error) 
-            return res.status(400).json({ error: 'Arquivo com formato invalido' });    
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({ error: 'Arquivo com formato invalido' });
         }
-        
+
+    }
+    async lancamento(req, res) {
+
+        try {
+            const data = {
+                'id_usuario': req.id_usuario,
+                ...req.body
+            }
+            const lancamento = new Lancamento();
+            await lancamento.lancamento(data);
+            return res.status(201).json(data);
+        } catch (error) {
+            return res.status(400).json({ error: 'Arquivo com formato invalido' });
+        }
+    }
+    async lancamentoUpdate(req, res){
+        try {
+            const id_receita = req.body.id_receita;
+            const id_despesa = req.body.id_despesa;
+            const ofx_fitid = req.body.ofx_fitid;
+            const ofx_checknum = req.body.ofx_checknum;
+            const id_usuario = req.id_usuario;
+            const lancamento = new Lancamento();
+            await lancamento.lancamentoUpdate(id_receita, id_despesa, ofx_fitid, ofx_checknum, id_usuario);
+            return res.status(201).json({'sucesso': 'sucesso'});
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({ error: 'Arquivo com formato invalido' });
+        }
     }
 
 }

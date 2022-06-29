@@ -23,11 +23,11 @@ import { AntDesign } from "@expo/vector-icons";
 import FloatingLabelInput from "./components/FloatingLabelInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import configuracao from "../../services/api";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { useNavigation } from "@react-navigation/native";
 import SyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView, TextInput } from 'react-native';
-import moment from 'moment';
+
 
 
 export function OFXForm({ props }) {
@@ -38,36 +38,180 @@ export function OFXForm({ props }) {
   const [numeroBanco, setNumeroBanco] = useState('');
   const [tempo, setTempo] = useState(true);
   const [load, setLoad] = useState(true);
+  const [contas, setContas] = useState([]);
   const [listaDespesa, setListaDespesa] = useState([]);
   const [listaReceita, setListaReceita] = useState([]);
   const [idReceitaDespesa, setIdReceitaDespesa] = useState([]);
   const navigation = useNavigation();
 
 
-  function updateOFX() {
-    console.log(idReceitaDespesa);
+  async function updateLancamentoOFX() {
+    var token = '';  
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
+    });    
+
+    var data = {};
+    idReceitaDespesa.map((v) => {
+      if (v.id != 0 || v.protocolo != 0 || v.id != '0' || v.protocolo != '0') {
+        if (v.id_receita > 0) {
+          data = {
+            'id_receita': v.id_receita,
+            'ofx_fitid': v.id,
+            'ofx_checknum': v.protocolo
+          }
+        } else {
+          data = {
+            'id_despesa': v.id_despesa,
+            'ofx_fitid': v.id,
+            'ofx_checknum': v.protocolo
+          }
+        }
+      }
+      var config = {
+        method: "POST",
+        url: configuracao.url_base_api + "/lancamento/lancamentoUpdate",
+        headers: {
+          Authorization: "Bearer " + configuracao.token,
+          autorizacao: token,
+        },
+        data: data
+      }
+      axios(config).then((resposta) => {
+        if (resposta.status === 201 || resposta.status == 200) {
+          console.log('-----------');
+          console.log('Criado com sucesso 2');
+        }
+      }).catch((error) => {
+        console.log('-----------')
+        console.log(error)
+      });
+    });
   }
 
-  function lancarOFX() {
-    listaDados.map((v) => {
-      console.log(v.DTPOSTED.trim())
-       var ano = (v.DTPOSTED.substring(0 ,4));
-       var mes = (v.DTPOSTED.substring(4 ,6));
-       var dia = (v.DTPOSTED.substring(6 ,8));
-        console.log(dia + ' - ' + mes + ' - '  + ano)
+  async function lancarOFX() {
+
+    var token = '';
+    await SyncStorage.getItem("@user").then((value) => {
+      token = JSON.parse(value).autorizacao;
     });
-   // console.log(.substring(0 ,3))
+    var id_conta = '';
+    contas.map((v) => {
+      if(v.conta == numeroConta){   
+       id_conta = v.id;
+      }
+     });
+     console.log('----------rrrrr-')
+     console.log(numeroConta)
+     console.log(numeroBanco)
+     console.log('---------sss--')
+    
+    var id_receita = '';
+    listaReceita.map((v, k) => {
+      if (v.receita == "Rendimentos") {
+        id_receita = (v.id);
+      }
+    });
+    var data2 = {};
+    listaDados.map((v) => {
+      var ano = (v.DTPOSTED.substring(0, 4));
+      var mes = (v.DTPOSTED.substring(4, 6));
+      var dia = (v.DTPOSTED.substring(6, 8));
+      var data = `${ano}-${mes}-${dia}`;
+
+      if (v.CHECKNUM == '0' || v.FITID == '0' || v.CHECKNUM == 0 || v.FITID == 0) {
+        data2 = {
+          'ano': ano,
+          'mes': mes,
+          'dia': dia,
+          'ofx_trntype': v.TRNTYPE,
+          'ofx_dtposted': data,
+          'ofx_trnamt': (v.TRNAMT).replace('-', ''),
+          'ofx_fitid': v.FITID,
+          'ofx_checknum': v.CHECKNUM,
+          'ofx_refnum': v.REFNUM,
+          'ofx_memo': v.MEMO,
+          'id_receita': id_receita,
+          'tipo': 'Entrada',
+          'id_conta': id_conta,
+          'ofx_acctid': numeroConta,
+          'ofx_bankid': numeroBanco
+        }
+      } else {
+        data2 = {
+          'ano': ano,
+          'mes': mes,
+          'dia': dia,
+          'ofx_trntype': v.TRNTYPE,
+          'ofx_dtposted': data,
+          'ofx_trnamt': (v.TRNAMT).replace('-', ''),
+          'ofx_fitid': v.FITID,
+          'ofx_checknum': v.CHECKNUM = undefined ? '' : v.CHECKNUM,
+          'ofx_refnum': v.REFNUM,
+          'ofx_memo': v.MEMO,
+          'id_conta': id_conta,
+          'ofx_acctid': numeroConta,
+          'ofx_bankid': numeroBanco
+        }
+      }
+
+      var config = {
+        method: "POST",
+        url: configuracao.url_base_api + "/lancamento/lancamento",
+        headers: {
+          Authorization: "Bearer " + configuracao.token,
+          autorizacao: token,
+        },
+        data: data2
+      }
+      axios(config).then((resposta) => {
+        if (resposta.status === 201 || resposta.status == 200) {
+          console.log('-----------');
+          console.log('Criado com sucesso');
+        }
+      }).catch((error) => {
+        console.log('-----------')
+      });
+    });
+    updateLancamentoOFX();
+    navigation.navigate('ProductScreen');
   }
 
   useEffect(() => {
     async function loadData() {
-      setListaDados(props.route.params.dados.BANKTRANLIST.STMTTRN)
+      setListaDados(props.route.params.dados.BANKTRANLIST.STMTTRN);
       setNomeBanco(props.route.params.dados.nomeBanco);
       setNumeroBanco(props.route.params.dados.numeroBanco);
       setNumeroConta(props.route.params.dados.numeroConta);
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+    async function Contas() { 
+      var config = {};
+      await SyncStorage.getItem('@user').then((value) => {        
+        config = {
+          method: "get",
+          url: configuracao.url_base_api + "/conta/listaAll",
+          headers: {
+            Authorization: "Bearer " + configuracao.token,
+            autorizacao: JSON.parse(value).autorizacao,
+          },
+        };
+      });     
+      axios(config)
+        .then((resposta) => {
+         // console.log(resposta.data)
+          setContas(resposta.data);
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
+    }
+    Contas();
+  }, []);
+
 
 
   useEffect(() => {
@@ -93,13 +237,10 @@ export function OFXForm({ props }) {
           },
         };
 
-        console.log(configDespesa)
         axios(configDespesa).then((resposta) => {
-          console.log(resposta)
           setListaDespesa(resposta.data);
         });
         axios(configReceita).then((resposta) => {
-          console.log(resposta)
           setListaReceita(resposta.data);
         });
       });
@@ -110,10 +251,7 @@ export function OFXForm({ props }) {
   }, []);
 
 
-
   function ReceitaDespesa(v, FITID, CHECKNUM) {
-
-
     if (v == 'DEBIT') {
       return (
         <Select placeholder="Selecione uma Despesa"
@@ -194,8 +332,8 @@ export function OFXForm({ props }) {
                   }}
                 >
                   <Button
+                    // onPress={lancarOFX}
                     onPress={lancarOFX}
-
                     mt="5"
                     size="md"
                     borderRadius="4"
@@ -224,7 +362,7 @@ export function OFXForm({ props }) {
 
                   <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
                   <TextInput fontSize={10} variant="unstyled" placeholder="Unstyled" color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false} >
-                  { (v.DTPOSTED.substring(6 ,8)) } { (v.DTPOSTED.substring(4 ,6)) } { (v.DTPOSTED.substring(0 ,4)) }
+                    {(v.DTPOSTED.substring(6, 8))} {(v.DTPOSTED.substring(4, 6))} {(v.DTPOSTED.substring(0, 4))}
                   </TextInput >
                   <Divider bg="primary.700" thickness="2" mx="2" orientation="vertical" />
                   <TextInput fontSize={10} color="coolGray.800" textAlign='center' justifyContent='center' editable={false} selectTextOnFocus={false}>

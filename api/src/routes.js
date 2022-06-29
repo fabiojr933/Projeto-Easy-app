@@ -23,6 +23,8 @@ route.delete('/lancamento/LancSaidaExcluir/:id', Middleware.Autorizacao, Autoriz
 route.post('/lancamento/LancEntrada', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntrada);
 route.delete('/lancamento/LancEntradaExcluir/:id', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.LancEntradaExcluir);
 route.post('/lancamento/lancOFX', Middleware.Autorizacao, Autorizacao.Autorizacao, multer(multerConfig).single('file'), Lancamento.lancOFX);
+route.post('/lancamento/lancamento', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.lancamento);
+route.post('/lancamento/lancamentoUpdate', Middleware.Autorizacao, Autorizacao.Autorizacao, Lancamento.lancamentoUpdate);
 
 route.post('/usuario/salvar', Usuario.salvar);
 route.put('/usuario/alterar/:id', Middleware.Autorizacao, Usuario.alterar);

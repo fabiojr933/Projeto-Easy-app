@@ -81,6 +81,19 @@ class lancamentoModel {
         }
         return data;
     }
-
+    async lancamento(dados) {
+        if (!dados.id_usuario) throw new Validacao('O usuario é obrigadorio informar');
+        await knex('lancamento').insert(dados).then((resposta) => {
+        });
+    }
+    async lancamentoUpdate(id_receita, id_despesa, ofx_fitid, ofx_checknum, id_usuario){
+        if (!id_usuario) throw new Validacao('O usuario é obrigadorio informar');
+        if(id_receita){
+            await knex('lancamento').update({ id_receita: id_receita, 'tipo': 'Entrada' }).where({ ofx_checknum: ofx_checknum, ofx_fitid: ofx_fitid, id_usuario: id_usuario });
+        }
+        if(id_despesa){
+            await knex('lancamento').update({ id_despesa: id_despesa, 'tipo': 'Saida' }).where({ ofx_checknum: ofx_checknum, ofx_fitid: ofx_fitid, id_usuario: id_usuario });
+        }
+    }
 }
 module.exports = lancamentoModel;
