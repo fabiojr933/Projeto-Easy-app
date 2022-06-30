@@ -61,6 +61,40 @@ class lancamentoModel {
         const file = fs.readFileSync(path.resolve(__dirname, '..', '..', 'tmp', 'uploads', arquivo), 'utf8');
         const dados = ofx.toJson(file);
         //  console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST);
+
+
+        
+
+        //Verifica se ja ja foi lancado       
+        var dadosNovo = {};
+        var dadosEncontrado = [];
+        dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN.map((v) => {
+           // console.log(v.FITID);
+            knex('lancamento').select('ofx_fitid').where({ id_usuario: id_usuario, ofx_fitid: v.FITID }).then(resposta => {
+                resposta.map((s) => {
+                    if(v.FITID == s.ofx_fitid){
+                        console.log(s.ofx_fitid)   
+                         
+                    }
+                               
+                  
+                }) 
+            })           
+        });
+
+        console.log("********************")
+      //  console.log(dadosNovo);
+      
+        return
+       // console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN);
+
+        // console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN);
+
+
+
+
+
+
         var numeroConta = Number(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.ACCTID.replace('-', ''));
         var numeroBanco = parseInt(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.BANKID);
         await knex('banco').count('id as id').where({ bankid: numeroBanco }).select('name').groupBy('name').then((resposta) => {
@@ -86,12 +120,12 @@ class lancamentoModel {
         await knex('lancamento').insert(dados).then((resposta) => {
         });
     }
-    async lancamentoUpdate(id_receita, id_despesa, ofx_fitid, ofx_checknum, id_usuario){
+    async lancamentoUpdate(id_receita, id_despesa, ofx_fitid, ofx_checknum, id_usuario) {
         if (!id_usuario) throw new Validacao('O usuario é obrigadorio informar');
-        if(id_receita){
+        if (id_receita) {
             await knex('lancamento').update({ id_receita: id_receita, 'tipo': 'Entrada' }).where({ ofx_checknum: ofx_checknum, ofx_fitid: ofx_fitid, id_usuario: id_usuario });
         }
-        if(id_despesa){
+        if (id_despesa) {
             await knex('lancamento').update({ id_despesa: id_despesa, 'tipo': 'Saida' }).where({ ofx_checknum: ofx_checknum, ofx_fitid: ofx_fitid, id_usuario: id_usuario });
         }
     }
