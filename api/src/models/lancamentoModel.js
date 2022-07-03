@@ -58,64 +58,34 @@ class lancamentoModel {
         if (!id_usuario) throw new Validacao('O usuario é obrigadorio informar');
         if (!arquivo) throw new Validacao('É obrigado enviar o arquivo');
 
+
+
         const file = fs.readFileSync(path.resolve(__dirname, '..', '..', 'tmp', 'uploads', arquivo), 'utf8');
         const dados = ofx.toJson(file);
         //  console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST);
-
-
-        
-
-        //Verifica se ja ja foi lancado       
-        var dadosNovo = {};
-        var dadosEncontrado = [];
-        dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN.map((v) => {
-           // console.log(v.FITID);
-            knex('lancamento').select('ofx_fitid').where({ id_usuario: id_usuario, ofx_fitid: v.FITID }).then(resposta => {
-                resposta.map((s) => {
-                    if(v.FITID == s.ofx_fitid){
-                        console.log(s.ofx_fitid)   
-                         
-                    }
-                               
-                  
-                }) 
-            })           
-        });
-
-        console.log("********************")
-      //  console.log(dadosNovo);
-      
-        return
-       // console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN);
-
-        // console.log(dados.OFX.BANKMSGSRSV1.BANKTRANLIST.STMTTRN);
-
-
-
-
-
-
         var numeroConta = Number(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.ACCTID.replace('-', ''));
         var numeroBanco = parseInt(dados.OFX.BANKMSGSRSV1.BANKACCTFROM.BANKID);
         await knex('banco').count('id as id').where({ bankid: numeroBanco }).select('name').groupBy('name').then((resposta) => {
             nomeBanco = resposta[0].name.trim();
         });
         await knex('conta').count('id as id_conta').where({ conta: numeroConta }).then((resposta) => {
-            console.log(resposta[0].id_conta);
+            //   console.log(resposta[0].id_conta);
             if (resposta[0].id_conta == 0 || resposta[0].id_conta == undefined) {
                 knex('conta').insert({ 'nome': nomeBanco, 'conta': numeroConta, 'banco': numeroBanco, 'status': 'Ativo', 'id_usuario': id_usuario }).then((resposta) => {
                 })
             }
         });
-        const data = {
+        var data = {
             'nomeBanco': nomeBanco,
             'numeroBanco': numeroBanco,
             'numeroConta': numeroConta,
             ...dados.OFX.BANKMSGSRSV1
         }
+
         return data;
     }
     async lancamento(dados) {
+        console.log(dados)
         if (!dados.id_usuario) throw new Validacao('O usuario é obrigadorio informar');
         await knex('lancamento').insert(dados).then((resposta) => {
         });

@@ -100,9 +100,10 @@ export function OFXForm({ props }) {
     await SyncStorage.getItem("@user").then((value) => {
       token = JSON.parse(value).autorizacao;
     });
-    var id_conta = "";
+    var id_conta;
     contas.map((v) => {
-      if (v.conta == numeroConta) {
+      console.log('------88------' + v.conta + ' ' + numeroConta)
+      if (v.conta == numeroConta) {   
         id_conta = v.id;
       }
     });
@@ -187,6 +188,7 @@ export function OFXForm({ props }) {
       setNomeBanco(props.route.params.dados.nomeBanco);
       setNumeroBanco(props.route.params.dados.numeroBanco);
       setNumeroConta(props.route.params.dados.numeroConta);
+      console.log(props.route.params.dados)
     }
     loadData();
   }, []);
